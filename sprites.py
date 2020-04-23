@@ -79,7 +79,6 @@ def updateMatrixS(matrix):
                 matrix[i][j] = 1
     return matrix
 
-
 # get the shortest path
 def constructPath(prev,matrix,s):
     target = getDestination(matrix)
@@ -130,6 +129,8 @@ iceImg = pg.image.load(iceImg)
 flyEnemyImg = pg.image.load(flyEnemyImg)
 fortressImg = pg.image.load(fortressImg)
 dragonImg = pg.image.load(dragonImg)
+finalfightImg = pg.image.load(finalfightImg)
+attackfireImg = pg.image.load(attackfireImg)
 
 runMulan = [pg.image.load("image/princess/Run (1).png"),pg.image.load("image/princess/Run (2).png"),pg.image.load("image/princess/Run (3).png"),
         pg.image.load("image/princess/Run (4).png"),pg.image.load("image/princess/Run (5).png"), pg.image.load("image/princess/Run (6).png"),
@@ -252,6 +253,13 @@ class Princess(pg.sprite.Sprite):
             self.rect.midbottom = self.pos
             if Princess.blood <= 0:
                 Princess.alive = False
+
+    def hitFinalFire(self):
+        hits = pg.sprite.spritecollide(self, self.game.finalfire, False)
+        if hits:
+            Princess.life -= 1
+            Princess.blood = 0
+            self.kill()
 
     def jump(self):
         hits = pg.sprite.spritecollide(self.game.princess, self.game.platforms, False)
@@ -629,9 +637,6 @@ class Dragon(Enemy):
         self.blood = 2000
         self.hBarL = 100
 
-    def draw(self):
-        self.game.screen.blit(self.image,self.rect)
-
     def update(self):
         self.rect.x -= self.game.princess.vel.x
         # if self.rect.x <= 0:
@@ -669,6 +674,14 @@ class Dragon(Enemy):
             self.rect.x += self.vx
             self.rect.y += self.vy
 
+    def fireAttack(self):
+        self.distance = ((self.rect.x - self.game.princess.rect.x)**2 + (self.rect.y - self.game.princess.rect.y)**2)**0.5
+        if self.distance < 300:
+           self.game.attackfire.display = True
+
+
+    def draw(self):
+        self.game.screen.blit(self.image,self.rect)
 
 # create a class for the platform to Jump on
 
@@ -752,6 +765,65 @@ class Fire(pg.sprite.Sprite):
 
     def draw(self):
         self.game.screen.blit(self.image, self.rect)
+
+class FinalFire(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        pg.sprite.Sprite.__init__(self)
+        self.game = game
+        self.image = finalfightImg
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def update(self):
+        self.rect.x -= self.game.princess.vel.x
+
+    def draw(self):
+        self.game.screen.blit(self.image, self.rect)
+
+
+class Attackfire(pg.sprite.Sprite):
+    def __init__(self, game):
+        pg.sprite.Sprite.__init__(self)
+        self.game = game
+        self.image = attackfireImg
+        self.rect = self.image.get_rect()
+        self.rect.center = (0,0)
+        self.vx = -5
+        self.vy = 0
+        self.distance = 0
+        self.display = False
+        self.check = False
+
+    def update(self):
+        self.distance = ((self.game.dragon.rect.x - self.rect.x)**2 + (self.game.dragon.rect.y - self.rect.y)**2)**0.5
+        if self.distance > 100:
+            self.display = False
+        if self.display == False:
+            self.rect.center = self.game.dragon.rect.center
+        if self.display == True:
+                    x = self.game.princess.rect.x
+                    y = self.game.princess.rect.y
+                    if x <= self.rect.x:
+                        self.vx = -10
+                    if x > self.rect.x:
+                        self.vx = 10
+                    if y <= self.rect.y:
+                        self.vy = -10
+                    if y > self.rect.y:
+                        self.vy = 10
+                    self.rect.x += self.vx
+                    self.rect.y += self.vy
+                    hits = pg.sprite.spritecollide(self, self.game.princesses, False)
+                    if hits:
+                            Princess.blood -= 20
+                            if Princess.blood >= 0:
+                               Princess.hBarL -= 20/Princess.blood * princesshBarL
+                               self.display = False
+
+    def draw(self):
+        if self.display == True:
+         self.game.screen.blit(self.image, self.rect)
 
 
 

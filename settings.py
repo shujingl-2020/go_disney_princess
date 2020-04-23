@@ -6,7 +6,7 @@ red = (255, 0, 0)
 black = (0, 0, 0)
 blue = (5, 90, 139)
 purple = (117, 80, 166)
-finalPlatColor = (137,207,240)
+finalPlatColor = (5,0,139)
 
 # display surface
 width = 800
@@ -129,7 +129,7 @@ platformList2 = [(plat1X2, plat1Y2, platformWidth, platformHeight), (plat2X2, pl
                  (plat3X2, plat3Y2, platformWidth, platformHeight), (plat4X2, plat4Y2, platformWidth, platformHeight),
                  (plat5X2, plat5Y2, platformWidth, platformHeight)]
 
-plat1X3 = stageWidth - width * 2 - 200
+plat1X3 = stageWidth - width * 2 - 400
 plat1Y3 = 500
 plat2X3 = plat1X3 + platxDiff
 plat2Y3 = plat1Y3 - platyDiff
@@ -144,12 +144,12 @@ platformList3 = [(plat1X3, plat1Y, platformWidth, platformHeight), (plat2X3, pla
                  (plat3X3, plat3Y3, platformWidth, platformHeight), (plat4X3, plat4Y3, platformWidth, platformHeight),
                  (plat5X3, plat5Y3, platformWidth, platformHeight)]
 
-matrix = [[0, 1, 0, 1, 0, 1],
-          [1, 0, 1, 0, 1, 0],
-          [0, 1, 0, 1, 0, 1],
-          [1, 0, 1, 0, 1, 0],
-          [0,  1,  0,  0, 1, 0],
-          ["E", 1, 0, 1, "S", 0]]
+matrix = [[0, 1, 0, 1, 0],
+          [1, 0, 1, 0, 1],
+          [0, 1, 0, 1, 0],
+          [1, 0, 1, 0, 1],
+          [0,  1,  0, 1, 0],
+          ["E", 1, 0, 1, "S"]]
 
 rows = len(matrix)
 cols = len(matrix[0])
@@ -188,6 +188,11 @@ castleY = initialBottom - 110
 # carpet
 carpetW = 80
 carpetH = 10
+
+
+# finalfire
+finalFirePosX = stageWidth - width -200
+finalFirePosY = 550
 
 # images
 # https://www.gameart2d.com/cute-girl-free-sprites.html
@@ -231,3 +236,6 @@ iceImg = "image/ice.png"
 dragonImg = "image/dragon.png"
 # <div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
 fortressImg = "image/fortress.png"
+finalfightImg = "image/finalfight.png"
+#Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+attackfireImg = "image/fireball.png"

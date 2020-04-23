@@ -21,7 +21,7 @@ class Game:
         self.running = True
         self.gameOver = False
         self.x = 0
-        # self.allSrpites = pg.sprite.Group()
+        self.allSrpites = pg.sprite.Group()
 
     def addFire(self):
         self.fires = pg.sprite.Group()
@@ -35,11 +35,11 @@ class Game:
         for i in range(2):
             enemy = Enemy(self, random.randint(400, 1000), initialCenter)
             self.enemies.add(enemy)
-            # self.allSrpites.add(enemy)
+            self.allSrpites.add(enemy)
         for i in range(1):
             quickEnemy = QuickEnemy(self, random.randint(600, 1200), initialCenter)
             self.enemies.add(quickEnemy)
-            # self.allSrpites.add(quickEnemy)
+            self.allSrpites.add(quickEnemy)
         for i in range(5):
             flyEnemy = FlyingEnemy(self,random.randint(plat5X2, plat5X2+width-flyenemySize),random.randint(flyenemyY,flyenemyY+100))
             self.enemies.add(flyEnemy)
@@ -59,7 +59,7 @@ class Game:
             (x, y, w, h) = plat1
             platform = Platform(x , y, w, h,platformColor)
             self.platforms.add(platform)
-            # self.allSrpites.add(platform)
+            self.allSrpites.add(platform)
         for plat2 in platformList2:
             (x, y, w, h) = plat2
             platform = Platform(x , y, w, h,platformColor)
@@ -79,8 +79,20 @@ class Game:
             (x, y, w, h, r) = rew
             reward = Reward(self, x , y, w, h, r)
             self.rewards.add(reward)
-            # self.allSrpites.add(reward)
+            self.allSrpites.add(reward)
 
+
+    def addPrincesses(self):
+        self.princesses = pg.sprite.Group()
+        self.mulan = Mulan(self)
+        self.elsa = Elsa(self)
+        self.jasmine = Jasmine(self)
+        self.princesses.add(self.mulan)
+        self.princesses.add(self.elsa)
+        self.princesses.add(self.jasmine)
+        self.allSrpites.add(self.mulan)
+        self.allSrpites.add(self.elsa)
+        self.allSrpites.add(self.jasmine)
 
     def new(self):
         # start a new game
@@ -89,25 +101,22 @@ class Game:
         # create sprites
         (x, y, w, h, r) = rewardIcon
         self.rewardIcon = Reward(self, x, y, w, h, r)
-        self.mulan = Mulan(self)
-        # self.allSrpites.add(self.mulan)
         self.sword = Sword(self)
-        self.elsa = Elsa(self)
-        # self.allSrpites.add(self.elsa)
-        self.jasmine = Jasmine(self)
-        # self.allSrpites.add(self.jasmine)
+        self.addPrincesses()
         self.princess = self.mulan
         self.enemies = pg.sprite.Group()
         self.putPlatforms()
-        self.floor = Platform(0, 590, stageWidth, platformHeight)
+        self.floor = Platform(0, 590, stageWidth, platformHeight,platformColor)
         self.putRewards()
         self.putEnemies()
         self.addFire()
         self.ice = Ice(self)
         self.dragon = Dragon(self,castleX - dragonSize - 50, castleY)
-        #self.enemies.add(self.dragon)
+        self.allSrpites.add(self.dragon)
         self.castle = Castle(self, castleX,castleY)
         self.carpet = Carpet(self)
+        self.finalfire = FinalFire(self,finalFirePosX, finalFirePosY)
+        self.attackfire = Attackfire(self)
         # initialize the game
         self.run()
 
@@ -184,7 +193,6 @@ class Game:
 
     def update(self):
         # game loop update
-        print(self.dragon.rect)
         self.clock.tick(fps)
         self.backgroudScrolling()
         self.enemies.update()
@@ -205,6 +213,9 @@ class Game:
         self.dragon.update()
         self.castle.update()
         self.carpet.update()
+        self.finalfire.update()
+        self.dragon.fireAttack()
+        self.attackfire.update()
 
     # all the event functions
 
@@ -354,6 +365,8 @@ class Game:
             self.dragon.draw()
             self.ice.draw()
             self.drawInstruction()
+            self.finalfire.draw()
+            self.attackfire.draw()
         else:
             self.showOverScreen()
         pg.display.update()
