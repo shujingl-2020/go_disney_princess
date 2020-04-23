@@ -129,6 +129,14 @@ platformList2 = [(plat1X2, plat1Y2, platformWidth, platformHeight), (plat2X2, pl
                  (plat3X2, plat3Y2, platformWidth, platformHeight), (plat4X2, plat4Y2, platformWidth, platformHeight),
                  (plat5X2, plat5Y2, platformWidth, platformHeight)]
 
+
+rewardList2 = [(plat1X2 + 20, plat1Y2 - 30, rewardWidth, rewardHeight, rewardRadius),
+               (plat1X2 + 45, plat1Y2 - 30, rewardWidth, rewardHeight, rewardRadius),
+               (plat2X2 + 30, plat2Y2 - 30, rewardWidth, rewardHeight, rewardRadius),
+               (plat3X2 + 30, plat3Y2 - 30, rewardWidth, rewardHeight, rewardRadius),
+               (plat4X2 + 30, plat4Y2- 30, rewardWidth, rewardHeight, rewardRadius),
+               (plat5X2 + 55, plat5Y2 - 30, rewardWidth, rewardHeight, rewardRadius)]
+
 plat1X3 = stageWidth - width * 2 - 400
 plat1Y3 = 500
 plat2X3 = plat1X3 + platxDiff
@@ -143,6 +151,15 @@ plat5Y3 = plat1Y3
 platformList3 = [(plat1X3, plat1Y, platformWidth, platformHeight), (plat2X3, plat2Y3, platformWidth, platformHeight),
                  (plat3X3, plat3Y3, platformWidth, platformHeight), (plat4X3, plat4Y3, platformWidth, platformHeight),
                  (plat5X3, plat5Y3, platformWidth, platformHeight)]
+
+
+rewardList3 = [(plat1X3 + 20, plat1Y3 - 30, rewardWidth, rewardHeight, rewardRadius),
+               (plat1X3 + 45, plat1Y3 - 30, rewardWidth, rewardHeight, rewardRadius),
+               (plat2X3 + 30, plat2Y3 - 30, rewardWidth, rewardHeight, rewardRadius),
+               (plat3X3 + 30, plat3Y3 - 30, rewardWidth, rewardHeight, rewardRadius),
+               (plat4X3 + 30, plat4Y3- 30, rewardWidth, rewardHeight, rewardRadius),
+               (plat5X3 + 55, plat5Y3 - 30, rewardWidth, rewardHeight, rewardRadius)]
+
 
 matrix = [[0, 1, 0, 1, 0],
           [1, 0, 1, 0, 1],

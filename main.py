@@ -75,9 +75,19 @@ class Game:
 
     def putRewards(self):
         self.rewards = pg.sprite.Group()
-        for rew in rewardList1:
-            (x, y, w, h, r) = rew
+        for rew1 in rewardList1:
+            (x, y, w, h, r) = rew1
             reward = Reward(self, x , y, w, h, r)
+            self.rewards.add(reward)
+            self.allSrpites.add(reward)
+        for rew2 in rewardList2:
+            (x, y, w, h, r) = rew2
+            reward = Reward(self, x, y, w, h, r)
+            self.rewards.add(reward)
+            self.allSrpites.add(reward)
+        for rew3 in rewardList3:
+            (x, y, w, h, r) = rew3
+            reward = Reward(self, x, y, w, h, r)
             self.rewards.add(reward)
             self.allSrpites.add(reward)
 
