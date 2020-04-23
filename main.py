@@ -57,27 +57,27 @@ class Game:
         self.platforms = pg.sprite.Group()
         for plat1 in platformList1:
             (x, y, w, h) = plat1
-            platform = Platform(x, y, w, h)
+            platform = Platform(x , y, w, h,platformColor)
             self.platforms.add(platform)
             # self.allSrpites.add(platform)
         for plat2 in platformList2:
             (x, y, w, h) = plat2
-            platform = Platform(x, y, w, h)
+            platform = Platform(x , y, w, h,platformColor)
             self.platforms.add(platform)
-
-    def addNewPlatforms(self):
-        if len(self.platforms) < 6:
-            x = random.randrange(startScrollingPosX, 680)
-            y = random.randrange(250, 500)
-            p = Platform(x, y, platformWidth, platformHeight)
-            self.platforms.add(p)
-            # self.all_sprites.add(p)
+        for plat3 in platformList3:
+            (x, y, w, h) = plat3
+            platform = Platform(x, y, w, h,platformColor)
+            self.platforms.add(platform)
+        for pos in finalPlatPos:
+            (x,y) = pos
+            platform = Platform(x, y, finalPlatW, finalPlatH,finalPlatColor)
+            self.platforms.add(platform)
 
     def putRewards(self):
         self.rewards = pg.sprite.Group()
         for rew in rewardList1:
             (x, y, w, h, r) = rew
-            reward = Reward(self, x, y, w, h, r)
+            reward = Reward(self, x , y, w, h, r)
             self.rewards.add(reward)
             # self.allSrpites.add(reward)
 
@@ -104,9 +104,9 @@ class Game:
         self.putEnemies()
         self.addFire()
         self.ice = Ice(self)
-        self.dragon = Dragon(self,castleX - dragonSize - 50, castleY-100)
-        self.enemies.add(self.dragon)
-        self.castle = Castle(self,castleX,castleY)
+        self.dragon = Dragon(self,castleX - dragonSize - 50, castleY)
+        #self.enemies.add(self.dragon)
+        self.castle = Castle(self, castleX,castleY)
         self.carpet = Carpet(self)
         # initialize the game
         self.run()
@@ -114,7 +114,6 @@ class Game:
     # controller
     def run(self):
         # game loop
-        # self.playing = True
         while self.running:
             self.clock.tick(fps)
             self.events()
@@ -123,16 +122,17 @@ class Game:
 
     def backgroudScrolling(self):
         self.relX = self.x % bgWidth
-        if self.princess.pos.x > startScrollingPosX:
-            self.princess.pos.x = startScrollingPosX
-        elif self.princess.pos.x > stageWidth - princessWidth / 2:
-            self.princess.pos.x = stageWidth - princessWidth / 2
-        elif self.princess.pos.x <= princessWidth / 2:
-            self.princess.pos.x = princessWidth / 2
-        elif self.princess.pos.x > stageWidth - startScrollingPosX:
+        if self.x > -width and self.x <= 0:
+            if self.princess.pos.x < 30:
+                self.princess.pos.x = 30
+        if not self.x <= -(stageWidth - startScrollingPosX):
+            if self.princess.pos.x > startScrollingPosX:
+                self.princess.pos.x = startScrollingPosX
+                self.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+        else:
             self.princess.pos.x += self.princess.vel.x + 0.5 * self.princess.acc.x
-        # self.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
-        self.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+            if self.princess.pos.x >= width:
+                self.princess.pos.x = width-30
 
     def hitPlatform(self):
         # if the player hits the platform, it will stand on the platform
@@ -152,6 +152,7 @@ class Game:
             if enemy.distance < 40:
                 enemy.timeElapsed += self.dt
                 enemy.move = False
+                # attack every 50 frames
                 if enemy.timeElapsed > 50:
                    enemy.isAttack = True
                    enemy.attack()
@@ -164,29 +165,33 @@ class Game:
                 enemy.move = True
 
     def isGameOver(self):
-        if self.princess.blood == 0:
+        if Princess.blood <= 0:
             self.gameOver = True
-            self.princess.alive = False
+            Princess.alive = False
 
     def updatePlatRewPos(self):
+       if not self.x < -(stageWidth -  startScrollingPosX):
         for platform in self.platforms:
             if platform != self.floor:
-                platform.rect.x -= self.princess.vel.x
+                platform.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
         for reward in self.rewards:
-            reward.rect.x -= self.princess.vel.x
+            reward.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
 
     def updateEnemyPos(self):
+      if not self.x < -(stageWidth - startScrollingPosX):
         for enemy in self.enemies:
-            enemy.rect.x -= self.princess.vel.x
+            enemy.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
 
     def update(self):
         # game loop update
+        print(self.dragon.rect)
         self.clock.tick(fps)
         self.backgroudScrolling()
         self.enemies.update()
         self.fires.update()
         self.platforms.update()
         self.princess.update()
+        self.princess.updateMatrix()
         self.sword.update()
         self.mulan.isAttack()
         self.princess.collectReward()
@@ -194,7 +199,6 @@ class Game:
         self.enemyAttack()
         self.isGameOver()
         self.updatePlatRewPos()
-        self.addNewPlatforms()
         self.updateEnemyPos()
         self.ice.update()
         self.princess.hitFire()
@@ -347,9 +351,12 @@ class Game:
             self.drawEnemyHBar()
             self.princess.showLostBlood()
             self.drawEnemyDamage()
+            self.dragon.draw()
             self.ice.draw()
             self.drawInstruction()
-            pg.display.update()
+        else:
+            self.showOverScreen()
+        pg.display.update()
 
 
 # create instance

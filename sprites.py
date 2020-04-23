@@ -4,6 +4,117 @@ from settings import *
 
 vec = pg.math.Vector2
 
+
+
+
+# breadth first search algorithm
+
+# get the starting point
+def getSource(matrix):
+   result = 0
+   for i in range(len(matrix)):
+       for j in range(len(matrix[0])):
+           if matrix[i][j] == "S":
+               result = (i,j)
+   return result
+
+#get the target point
+def getDestination(matrix):
+   result = 0
+   for i in range(len(matrix)):
+       for j in range(len(matrix[0])):
+           if matrix[i][j] == "E":
+               result = (i,j)
+   return result
+
+# get all the points that are adjancent to it
+def getNeighbors(currentCell,matrix,visited):
+    direction = [(-1, -1), (0, -1), (1, -1),
+                 (-1, 0), (0, 0), (1, 0),
+                 (-1, 1), (0, -1), (1, 1)]
+    result = []
+    (r,c) = currentCell
+    for dir in direction:
+       if dir != (0, 0):
+        (dr,dc) = dir
+        newr = r + dr
+        newc = c + dc
+        if (newr >= 0 and newr < len(matrix) and newc >= 0 and newc < len(matrix[0])
+            and (matrix[newr][newc] == 1 or matrix[newr][newc] == "E") and visited[newr][newc] == False):
+               result.append((newr,newc))
+    return result
+
+# avoid a cell being visited twice
+def getVisited(r,c):
+    visited = []
+    for i in range(r):
+        row = []
+        for j in range(c):
+            row.append(False)
+        visited.append(row)
+    return visited
+
+# keep track of the parent node
+def getPrev(r,c):
+    prev = []
+    for i in range(r):
+        row = []
+        for j in range(c):
+            row.append(None)
+        prev.append(row)
+    return prev
+
+
+def updateMatrixE(matrix):
+    for i in range(len(matrix)):
+        for j in range(len(matrix[0])):
+            if matrix[i][j] == "E":
+                matrix[i][j] = 1
+    return matrix
+
+def updateMatrixS(matrix):
+    for i in range(len(matrix)):
+        for j in range(len(matrix[0])):
+            if matrix[i][j] == "S":
+                matrix[i][j] = 1
+    return matrix
+
+
+# get the shortest path
+def constructPath(prev,matrix,s):
+    target = getDestination(matrix)
+    result = [target]
+    (tr,tc) = target
+    while target != s:
+        target = prev[tr][tc]
+        (tr,tc) = target
+        result.append(target)
+    result.pop()
+    result = list(reversed(result))
+    return result
+
+# using queue
+def solve(matrix):
+    r = len(matrix)
+    c = len(matrix[0])
+    s = getSource(matrix)
+    q = [s]
+    (row,col) = s
+    visited = getVisited(r,c)
+    visited[row][col] = True
+    prev = getPrev(r,c)
+    while len(q) > 0:
+        node = q.pop(0)
+        neighbors = getNeighbors(node,matrix,visited)
+        for cell in neighbors:
+            (row1,col1) = cell
+            if visited[row1][col1] == False:
+             q.append(cell)
+             visited[row1][col1] = True
+             prev[row1][col1] = node
+    result = constructPath(prev,matrix,s)
+    return result
+
 # sprites images
 princessImg = pg.image.load(princessImg)
 mulanImg = pg.image.load(mulanImg)
@@ -67,6 +178,8 @@ class Princess(pg.sprite.Sprite):
     life = 3
     blood = 1000
     hBarL = princesshBarL
+    alive = True
+    finalMatrix = matrix
 
     def __init__(self, game):
         pg.sprite.Sprite.__init__(self)
@@ -75,6 +188,7 @@ class Princess(pg.sprite.Sprite):
         Princess.life = 3
         Princess.blood = 1000
         Princess.hBarL = princesshBarL
+        Princess.alive = True
         self.game = game
         self.w = princessWidth
         self.h = princessHeight
@@ -96,6 +210,13 @@ class Princess(pg.sprite.Sprite):
         self.runCount = 0
         self.jumpCount = 0
         self.floating = False
+
+    def updateMatrix(self):
+        vecR = int(self.rect.y // cellH)
+        vecC= int(self.rect.x // cellW)
+        if vecR >= 0 and vecR < rows and vecC >= 0 and vecC < cols and Princess.finalMatrix[vecR][vecC]!=0 and Princess.finalMatrix[vecR][vecC]!="S":
+          Princess.finalMatrix = updateMatrixE(Princess.finalMatrix)
+          Princess.finalMatrix[vecR][vecC] = "E"
 
     def update(self):
         if self.run == True:
@@ -129,6 +250,8 @@ class Princess(pg.sprite.Sprite):
                 self.vel.x = self.maxSpeed
             self.pos += self.vel + 0.5 * self.acc
             self.rect.midbottom = self.pos
+            if Princess.blood <= 0:
+                Princess.alive = False
 
     def jump(self):
         hits = pg.sprite.spritecollide(self.game.princess, self.game.platforms, False)
@@ -158,15 +281,16 @@ class Princess(pg.sprite.Sprite):
         y  = self.pos.y - princessHeight
         font = pg.font.Font("StaySafe-Regular.ttf", 20)
         health = font.render(str(Princess.blood), True, black)
-        self.game.screen.blit(health, (x - 40, y - 40))
         image1 = pg.Surface((princesshBarL, princesshBarH))
         image1.fill(black)
         rect1 = image1.get_rect()
         rect1.x = x - 10
         rect1.y = y - 30
-        self.game.screen.blit(image1, rect1)
         if Princess.hBarL > 0:
-         pg.draw.rect(self.game.screen, lightred, (rect1.x, rect1.y, Princess.hBarL, princesshBarH))
+          self.game.screen.blit(health, (x - 40, y - 40))
+          self.game.screen.blit(image1, rect1)
+          pg.draw.rect(self.game.screen, lightred, (rect1.x, rect1.y, Princess.hBarL, princesshBarH))
+
 
     def showLostBlood(self):
         x = self.rect.x
@@ -499,15 +623,60 @@ class Dragon(Enemy):
         super().__init__(game, x, y)
         self.image = dragonImg
         self.vx = 0
+        self.vy = 0
+        self.rect.x = x
+        self.rect.y = y
+        self.blood = 2000
+        self.hBarL = 100
+
+    def draw(self):
+        self.game.screen.blit(self.image,self.rect)
+
+    def update(self):
+        self.rect.x -= self.game.princess.vel.x
+        # if self.rect.x <= 0:
+        #   self.rect.x = 0
+        # if self.rect.y <= 50:
+        #    self.rect.y = 50
+        # if self.rect.x > width - dragonSize:
+        #    self.rect.x = width - dragonSize
+        # if self.rect.y >= height-200:
+        #    self.rect.y = height-200
+        if self.rect.x < width:
+            vecR = int(self.rect.y // cellH)
+            vecC = int(self.rect.x // cellW)
+            if Princess.finalMatrix[vecR][vecC] != "E" and Princess.finalMatrix[vecR][vecC] != 0:
+                Princess.finalMatrix = updateMatrixS(Princess.finalMatrix)
+                Princess.finalMatrix[vecR][vecC] = "S"
+                path = solve(Princess.finalMatrix)
+                (targetR,targetC) = path[0]
+                # move toward the platform
+                if targetR > vecR:
+                    self.vy = 5
+                if targetR < vecR:
+                    self.vy = -10
+                if targetR == vecR:
+                    self.vy = 0
+                if targetC > vecC:
+                    self.vx = 5
+                if targetC < vecC:
+                    self.vx = -10
+                if targetC == vecC:
+                    self.vx = 0
+            if Princess.finalMatrix[vecR][vecC] == "E":
+                self.vx = 0
+                self.vy = 0
+            self.rect.x += self.vx
+            self.rect.y += self.vy
 
 
 # create a class for the platform to Jump on
 
 class Platform(pg.sprite.Sprite):
-    def __init__(self, x, y, w, h):
+    def __init__(self, x, y, w, h,color):
         pg.sprite.Sprite.__init__(self)
         self.image = pg.Surface((w, h))
-        self.image.fill(platformColor)
+        self.image.fill(color)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -598,7 +767,15 @@ class Castle(pg.sprite.Sprite):
         self.game.screen.blit(self.image, self.rect)
 
     def update(self):
+     if not self.game.x < -(stageWidth - startScrollingPosX):
         self.rect.x -= self.game.princess.vel.x
+
+
+
+
+
+
+
 
 
 
