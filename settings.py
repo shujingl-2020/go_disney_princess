@@ -6,7 +6,12 @@ red = (255, 0, 0)
 black = (0, 0, 0)
 blue = (5, 90, 139)
 purple = (117, 80, 166)
-finalPlatColor = (5,0,139)
+finalPlatColor = (5, 0, 139)
+
+# stage size
+bgWidth = 1280
+stageWidth = bgWidth * 4
+stagePosX = 0
 
 # display surface
 width = 800
@@ -14,14 +19,10 @@ height = 720
 fps = 200
 hw = width / 2
 startScrollingPosX = hw
+stopScrolling = stageWidth - width - startScrollingPosX
 playerStatusY = height * 0.1
 
-# stage size
-bgWidth = 1280
-stageWidth = bgWidth * 4
-stagePosX = 0
-
-debugdis = stageWidth - width
+debugdis = stageWidth - width 
 
 # player data
 princessWidth = 65
@@ -36,7 +37,7 @@ initialCenter = 530
 healthBarColor = (255, 78, 78)
 princesshBarL = princessWidth + 30
 princesshBarH = 10
-princessBlood = 1000
+princessBlood = 500
 
 # platforms data
 platformWidth = 100
@@ -60,7 +61,7 @@ floorY = 590
 platformList1 = [(plat1X, plat1Y, platformWidth, platformHeight), (plat2X, plat2Y, platformWidth, platformHeight),
                  (plat3X, plat3Y, platformWidth, platformHeight), (plat4X, plat4Y, platformWidth, platformHeight),
                  (plat5X, plat5Y, platformWidth, platformHeight),
-                 (floorX, floorY, stageWidth, platformHeight)]
+                 (floorX, floorY, startScrollingPosX + stopScrolling , platformHeight)]
 
 # enemies data
 enemySize = 60
@@ -129,15 +130,14 @@ platformList2 = [(plat1X2, plat1Y2, platformWidth, platformHeight), (plat2X2, pl
                  (plat3X2, plat3Y2, platformWidth, platformHeight), (plat4X2, plat4Y2, platformWidth, platformHeight),
                  (plat5X2, plat5Y2, platformWidth, platformHeight)]
 
-
 rewardList2 = [(plat1X2 + 20, plat1Y2 - 30, rewardWidth, rewardHeight, rewardRadius),
                (plat1X2 + 45, plat1Y2 - 30, rewardWidth, rewardHeight, rewardRadius),
                (plat2X2 + 30, plat2Y2 - 30, rewardWidth, rewardHeight, rewardRadius),
                (plat3X2 + 30, plat3Y2 - 30, rewardWidth, rewardHeight, rewardRadius),
-               (plat4X2 + 30, plat4Y2- 30, rewardWidth, rewardHeight, rewardRadius),
+               (plat4X2 + 30, plat4Y2 - 30, rewardWidth, rewardHeight, rewardRadius),
                (plat5X2 + 55, plat5Y2 - 30, rewardWidth, rewardHeight, rewardRadius)]
 
-plat1X3 = stageWidth - width * 2 - 400
+plat1X3 = stageWidth - 2 * width - 300
 plat1Y3 = 500
 plat2X3 = plat1X3 + platxDiff
 plat2Y3 = plat1Y3 - platyDiff
@@ -152,37 +152,36 @@ platformList3 = [(plat1X3, plat1Y, platformWidth, platformHeight), (plat2X3, pla
                  (plat3X3, plat3Y3, platformWidth, platformHeight), (plat4X3, plat4Y3, platformWidth, platformHeight),
                  (plat5X3, plat5Y3, platformWidth, platformHeight)]
 
-
 rewardList3 = [(plat1X3 + 20, plat1Y3 - 30, rewardWidth, rewardHeight, rewardRadius),
                (plat1X3 + 45, plat1Y3 - 30, rewardWidth, rewardHeight, rewardRadius),
                (plat2X3 + 30, plat2Y3 - 30, rewardWidth, rewardHeight, rewardRadius),
                (plat3X3 + 30, plat3Y3 - 30, rewardWidth, rewardHeight, rewardRadius),
-               (plat4X3 + 30, plat4Y3- 30, rewardWidth, rewardHeight, rewardRadius),
+               (plat4X3 + 30, plat4Y3 - 30, rewardWidth, rewardHeight, rewardRadius),
                (plat5X3 + 55, plat5Y3 - 30, rewardWidth, rewardHeight, rewardRadius)]
-
 
 matrix = [[0, 1, 0, 1, 0],
           [1, 0, 1, 0, 1],
           [0, 1, 0, 1, 0],
           [1, 0, 1, 0, 1],
-          [0,  1,  0, 1, 0],
-          ["E", 1, 0, 1, "S"]]
+          [0, 1, 0, 1, 0],
+          ["E", 1, 0, 1, 0]]
 
 rows = len(matrix)
 cols = len(matrix[0])
-cellW = width / cols
-cellH = (height-200) / rows
+neWidth = width - 256
+newHeight = height - 200
+cellW = (neWidth) / cols
+cellH = (newHeight) / rows
 margin = cellW / 5
 finalPlatW = cellW - 2 * margin
 finalPlatH = 15
-
 
 def getPlatPos(matrix):
     result = []
     for i in range(len(matrix)):
         for j in range(len(matrix[0])):
             if matrix[i][j] == 1:
-                x = cellW * j + margin + stageWidth - width -200
+                x = cellW * j + margin + stopScrolling + startScrollingPosX + 50
                 y = cellH * i + (cellH - finalPlatH) + 50
                 result.append((x, y))
     return result
@@ -199,17 +198,16 @@ dragonSize = 128
 
 # castle
 castleSize = 256
-castleX = stageWidth-castleSize/2
-castleY = initialBottom - 110
+castleX = stageWidth - castleSize
+castleY = initialBottom - castleSize
 
 # carpet
 carpetW = 80
 carpetH = 10
 
-
 # finalfire
-finalFirePosX = stageWidth - width -200
-finalFirePosY = 550
+finalFirePosX = stageWidth - width
+finalFirePosY = 580
 
 # images
 # https://www.gameart2d.com/cute-girl-free-sprites.html
@@ -254,5 +252,13 @@ dragonImg = "image/dragon.png"
 # <div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
 fortressImg = "image/fortress.png"
 finalfightImg = "image/finalfight.png"
-#Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+# Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
 attackfireImg = "image/fireball.png"
+# Icons made by <a href="https://www.flaticon.com/authors/surang" title="surang">surang</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+axeEnemyImg = "image/boss1.png"
+# <div>Icons made by <a href="https://www.flaticon.com/authors/itim2101" title="itim2101">itim2101</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+lifeImg = "image/heart.png"
+# Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+freezeImg = "image/freeze.png"
+freezefireImg = "image/freezefire.png"
+axeImg = "image/axe.png"
