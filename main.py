@@ -23,6 +23,9 @@ class Game:
         self.x = 0
         self.allSrpites = pg.sprite.Group()
         self.finalplatX = stageWidth - width
+        self.i = 0
+        self.matrix = matrix
+        self.finalPlatPos = []
 
     def addFire(self):
         self.fires = pg.sprite.Group()
@@ -51,11 +54,12 @@ class Game:
     def addFireBall(self):
         self.fireballs = pg.sprite.Group()
         for enemy in self.flyingenemies:
-             fireball = Fireball(self,enemy)
-             self.fireballs.add(fireball)
+            fireball = Fireball(self, enemy)
+            self.fireballs.add(fireball)
 
     def putPlatforms(self):
         self.platforms = pg.sprite.Group()
+        self.obstacles = pg.sprite.Group()
         for plat1 in platformList1:
             (x, y, w, h) = plat1
             platform = Platform(x, y, w, h, platformColor)
@@ -69,11 +73,12 @@ class Game:
             (x, y, w, h) = plat3
             platform = Platform(x, y, w, h, platformColor)
             self.platforms.add(platform)
-        for pos in finalPlatPos:
-            (x, y) = pos
-            platform = Platform(x, y, finalPlatW, finalPlatH, finalPlatColor)
-            self.platforms.add(platform)
-        self.floor = Platform(0, 590, stageWidth, platformHeight, platformColor)
+        self.finalFloor = Platform(castleX, 590, castleSize, platformHeight, platformColor)
+        self.platforms.add(self.finalFloor)
+        for loc in finalObsPos:
+            (x, y) = loc
+            obs = Platform(x, y, obstacleW, obstacleH, obstacleColor)
+            self.obstacles.add(obs)
 
     def putRewards(self):
         self.rewards = pg.sprite.Group()
@@ -105,7 +110,6 @@ class Game:
         self.allSrpites.add(self.elsa)
         self.allSrpites.add(self.jasmine)
 
-
     def addAxe(self):
         self.axes = pg.sprite.Group()
         self.axe = Axe(self)
@@ -129,7 +133,7 @@ class Game:
         self.addAxe()
         self.ice = Ice(self)
         # self.dragon = Dragon(self,castleX - dragonSize - 50, castleY)
-        self.axeEnemy = AxeEnemy(self,cellW * 3 + margin + stageWidth - width,  cellH * 5 + (cellH - finalPlatH)-60)
+        self.axeEnemy = AxeEnemy(self, cellW * 3 + margin + stageWidth - width, cellH * 1 + (cellH - finalPlatH) - 64)
         self.castle = Castle(self, castleX, castleY)
         self.carpet = Carpet(self)
         # self.attackfire = Attackfire(self)
@@ -154,12 +158,14 @@ class Game:
                 quickEnemy = QuickEnemy(self, random.randint(600, 1200), initialCenter)
                 self.enemies.add(quickEnemy)
 
+
     def backgroudScrolling(self):
         self.relX = self.x % bgWidth
-        if self.x > -(stopScrolling) and self.princess.pos.x > startScrollingPosX:
-            self.princess.pos.x = startScrollingPosX
-            self.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
-            self.finalplatX +=  -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+        if self.x > -(stopScrolling):
+            if self.princess.pos.x > startScrollingPosX:
+                self.princess.pos.x = startScrollingPosX
+                self.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+                self.finalplatX += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
         else:
             self.princess.pos.x += self.princess.vel.x + 0.5 * self.princess.acc.x
 
@@ -169,6 +175,13 @@ class Game:
             hitPlatform = pg.sprite.spritecollide(self.princess, self.platforms, False)
             if hitPlatform:
                 for hit in hitPlatform:
+                    # make sure that the player will not jump automatically to the platform above when it hits it
+                    if self.princess.pos.y <= hit.rect.bottom:
+                        self.princess.vel.y = 0
+                        self.princess.pos.y = hit.rect.top
+            hitFinalPlat = pg.sprite.spritecollide(self.princess, self.finalplatforms, False)
+            if hitFinalPlat:
+                for hit in hitFinalPlat:
                     # make sure that the player will not jump automatically to the platform above when it hits it
                     if self.princess.pos.y <= hit.rect.bottom:
                         self.princess.vel.y = 0
@@ -189,34 +202,70 @@ class Game:
                     enemy.timeElapsed = 0
 
     def isGameOver(self):
-            if Princess.alive == False:
-             self.gameOver = True
+        if Princess.alive == False:
+            self.gameOver = True
 
     def updateSprites(self):
         if self.x > -(stopScrolling) and self.princess.pos.x > startScrollingPosX:
             for platform in self.platforms:
                 platform.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+            for obstacle in self.obstacles:
+                obstacle.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
             for reward in self.rewards:
                 reward.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
             for enemy in self.enemies:
-                enemy.rect.x +=  -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+                enemy.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
             for enemy in self.flyingenemies:
-                enemy.rect.x +=  -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+                enemy.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
             for fire in self.fires:
-               fire.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
-            self.finalfire.rect.x +=  -(self.princess.vel.x + 0.5 * self.princess.acc.x)
-            self.axeEnemy.rect.x +=  -(self.princess.vel.x + 0.5 * self.princess.acc.x)
-            self.castle.rect.x +=  -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+                fire.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+            self.finalfire.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+            self.axeEnemy.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+            self.castle.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
 
+    def addFinalPlat(self):
+        self.finalplatforms = pg.sprite.Group()
+        for pos in self.finalPlatPos:
+            (x, y) = pos
+            platform = Platform(x, y, finalPlatW, finalPlatH, finalPlatColor)
+            self.finalplatforms.add(platform)
+
+
+    def getPlatPos(self, matrix):
+        result = []
+        for i in range(len(matrix)):
+            for j in range(len(matrix[0])):
+                if matrix[i][j] == 1 or matrix[i][j] == "E" or matrix[i][j] == "S":
+                    x = cellW * j + margin + self.finalplatX
+                    y = cellH * i + (cellH - finalPlatH) + 50
+                    result.append((x, y))
+        return result
+
+    def updateMatrix(self):
+        self.matrix = matrixes[self.i]
+        self.finalPlatPos = self.getPlatPos(self.matrix)
+        self.addFinalPlat()
+        dt = self.clock.tick(fps)
+        self.timeElapsed += dt
+        if self.timeElapsed > 800:
+            for plat in self.finalplatforms:
+                plat.kill()
+            if self.i == 2:
+                self.i = 0
+            else:
+               self.i += 1
+            self.timeElapsed = 0
 
     def update(self):
         # game loop update
         self.clock.tick(fps)
+        self.updateMatrix()
         self.backgroudScrolling()
         self.enemies.update()
         self.flyingenemies.update()
         self.fires.update()
         self.platforms.update()
+        self.obstacles.update()
         self.princess.update()
         self.sword.update()
         self.hitPlatform()
@@ -227,7 +276,7 @@ class Game:
         self.castle.update()
         self.carpet.update()
         self.finalfire.update()
-        #self.addEnemies()
+        # self.addEnemies()
         # self.dragon.fireAttack()
         self.axeEnemy.update()
         self.axe.update()
@@ -248,9 +297,9 @@ class Game:
             self.princess = self.mulan
             self.princess.pos = self.jasmine.pos
             if self.jasmine.floating == True:
-              self.jasmine.floating = False
+                self.jasmine.floating = False
             if self.jasmine.isfly == True:
-              self.jasmine.isfly = False
+                self.jasmine.isfly = False
 
     def events(self):
         for event in pg.event.get():
@@ -305,8 +354,8 @@ class Game:
 
     def drawEnemyDamage(self):
         for enemy in self.enemies:
-          if enemy.attacked:
-             enemy.showLostBlood()
+            if enemy.attacked:
+                enemy.showLostBlood()
 
     def drawRewards(self):
         for reward in self.rewards:
@@ -326,6 +375,12 @@ class Game:
     def drawPlatforms(self):
         for platform in self.platforms:
             platform.draw(self.screen)
+        for platform in self.finalplatforms:
+            platform.draw(self.screen)
+
+    def drawObstacles(self):
+        for obstacle in self.obstacles:
+            obstacle.draw(self.screen)
 
     def drawFire(self):
         for fire in self.fires:
@@ -383,6 +438,7 @@ class Game:
             self.drawFire()
             self.sword.draw()
             self.drawPlatforms()
+            #self.drawObstacles()
             self.drawRewards()
             self.drawPrincess()
             self.showEnemyAttack()

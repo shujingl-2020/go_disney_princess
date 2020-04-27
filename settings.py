@@ -19,7 +19,7 @@ height = 720
 fps = 200
 hw = width / 2
 startScrollingPosX = hw
-stopScrolling = stageWidth - hw - startScrollingPosX
+stopScrolling = stageWidth - hw - startScrollingPosX - 100
 playerStatusY = height * 0.1
 
 debugdis = stageWidth - width
@@ -61,7 +61,7 @@ floorY = 590
 platformList1 = [(plat1X, plat1Y, platformWidth, platformHeight), (plat2X, plat2Y, platformWidth, platformHeight),
                  (plat3X, plat3Y, platformWidth, platformHeight), (plat4X, plat4Y, platformWidth, platformHeight),
                  (plat5X, plat5Y, platformWidth, platformHeight),
-                 (floorX, floorY, startScrollingPosX + stopScrolling , platformHeight)]
+                 (floorX, floorY, stopScrolling , platformHeight)]
 
 # enemies data
 enemySize = 60
@@ -166,6 +166,26 @@ matrix = [[0, 1, 0, 1, 0],
           [0, 1, 0, 1, 0],
           ["E", 1, 0, 1, 0]]
 
+matrix2 = [[1, 0, 1, 1, 0],
+          [1, 0, 1, 0, 1],
+          [0, 1, 0, 1, 1],
+          [1, 0, 1, 0, 1],
+          [0, "E", 0, 1, 0],
+          [1, 1, 0, 1, 0]]
+
+matrix3 = [[1, 0, 1, 0, 1],
+          [0, 1, 0, 1, 0],
+          [1, 0, 1, 0, 1],
+          [0, 1, 0, 1, 0],
+          [1, 0, 1, 0, 1],
+          ["E", 1, 0, 1, 0]]
+
+matrixes = []
+matrixes.append(matrix)
+matrixes.append(matrix2)
+matrixes.append(matrix3)
+
+
 rows = len(matrix)
 cols = len(matrix[0])
 neWidth = width - 256
@@ -176,18 +196,26 @@ margin = cellW / 5
 finalPlatW = cellW - 2 * margin
 finalPlatH = 15
 
-def getPlatPos(matrix):
+
+
+margin2 = 2/5*cellW
+obstacleW = 1/5*cellW
+marginH = 1/5 * cellH
+obstacleH = cellH * 3/5
+obstacleColor = (109,110,112)
+
+
+def getObsPos(matrix):
     result = []
     for i in range(len(matrix)):
         for j in range(len(matrix[0])):
-            if matrix[i][j] == 1:
-                x = cellW * j + margin + stageWidth - width
-                y = cellH * i + (cellH - finalPlatH) + 50
+            if matrix[i][j] == 0:
+                x = cellW * j + margin2 + stageWidth - width
+                y = cellH * i + marginH + 50
                 result.append((x, y))
     return result
 
-
-finalPlatPos = getPlatPos(matrix)
+finalObsPos = getObsPos(matrix)
 
 # flying enemies
 flyenemyY = 80

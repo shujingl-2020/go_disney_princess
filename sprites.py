@@ -246,7 +246,7 @@ class Princess(pg.sprite.Sprite):
         self.pos = vec(initialX, initialY)
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
-        self.maxSpeed = 80
+        self.maxSpeed = 100
 
     def initializeClassAttribute(self):
         Princess.score = 0
@@ -256,7 +256,9 @@ class Princess(pg.sprite.Sprite):
         Princess.hBarL = princesshBarL
         Princess.alive = True
 
+
     def updateMatrix(self):
+        Princess.finalMatrix = self.game.matrix
         (x, y) = self.rect.center
         if x > self.game.finalplatX:
             xdistance = x - self.game.finalplatX
@@ -297,16 +299,20 @@ class Princess(pg.sprite.Sprite):
             self.vel += self.acc
             if self.vel.y >= 10:
                 self.vel.y = 10
-            if self.vel.x >= self.maxSpeed:
+            if self.vel.x > self.maxSpeed:
                 self.vel.x = self.maxSpeed
             self.pos += self.vel + 0.5 * self.acc
             self.rect.midbottom = self.pos
-            if self.rect.x <= 0:
-                self.rect.x = 0
+            if self.rect.x < 20:
+                self.rect.x = 20
             if self.rect.x + 60 > width:
                 self.rect.x = width - 60
-            if self.rect.y <= 50:
-               self.rect.y = 50
+            if self.rect.y < 50:
+                self.rect.y = 50
+            if self.pos.y > initialBottom + 20:
+                self.rect.x = self.game.finalplatX
+                self.rect.y = cellH + (cellH - finalPlatH) + 50 - 60
+                Princess.alive = False
             if Princess.blood <= 0:
                 Princess.life -= 1
                 if Princess.life > 0:
@@ -322,17 +328,8 @@ class Princess(pg.sprite.Sprite):
         self.updateImg()
         self.updateMovement()
         self.hitbyFireball()
-        self.hitFinalFire()
         self.hitFire()
-        self.hitAxe()
         self.collectReward()
-
-    def hitFinalFire(self):
-        hits = pg.sprite.spritecollide(self, self.game.finalfires, False)
-        if hits:
-            Princess.blood = -1
-            self.rect.x = margin + 50
-            self.pos.y = cellH * 4 + (cellH - finalPlatH) + 50
 
     def hitFire(self):
         hits = pg.sprite.spritecollide(self, self.game.fires, False)
@@ -344,19 +341,7 @@ class Princess(pg.sprite.Sprite):
         else:
             self.ishitFire = False
 
-    def hitAxe(self):
-        hits = pg.sprite.spritecollide(self, self.game.axes, False)
-        if hits:
-            self.hitbyAxe = True
-            Princess.blood -= 5
-            Princess.hBarL -= 5 / princessBlood * princesshBarL
-            if hits[0].rect.x < self.rect.x:
-                self.vel.x = 5
-            if hits[0].rect.x > self.rect.x:
-                self.vel.x = -5
-            hits[0].display = False
-        else:
-            self.hitbyAxe = False
+
 
     def hitbyFireball(self):
         hits = pg.sprite.spritecollide(self, self.game.fireballs, False)
@@ -378,8 +363,9 @@ class Princess(pg.sprite.Sprite):
             Princess.reward += 1
 
     def jump(self):
-        hits = pg.sprite.spritecollide(self.game.princess, self.game.platforms, False)
-        if hits:
+        hits1 = pg.sprite.spritecollide(self.game.princess, self.game.platforms, False)
+        hits2 = pg.sprite.spritecollide(self.game.princess, self.game.finalplatforms, False)
+        if hits1 or hits2:
             self.vel.y = -23
 
     def draw(self):
@@ -458,9 +444,7 @@ class Mulan(Princess):
         self.updateImg()
         self.updateMovement()
         self.hitbyFireball()
-        self.hitFinalFire()
         self.hitFire()
-        self.hitAxe()
         self.collectReward()
         self.isAttack()
 
@@ -509,9 +493,7 @@ class Elsa(Princess):
         self.updateImg()
         self.updateMovement()
         self.hitbyFireball()
-        self.hitFinalFire()
         self.hitFire()
-        self.hitAxe()
         self.collectReward()
         self.shoot()
 
@@ -614,12 +596,18 @@ class Jasmine(Princess):
             self.vel.x = self.maxSpeed
         self.pos += self.vel + 0.5 * self.acc
         self.rect.midbottom = self.pos
-        if self.rect.x <= 0:
-            self.rect.x = 0
+        if self.rect.x < 20:
+            self.rect.x = 20
+            self.vel.x = 0
         if self.rect.x + 60 > width:
             self.rect.x = width - 60
-        if self.rect.y <= 50:
+            self.vel.x = 0
+        if self.rect.y < 50:
             self.rect.y = 50
+        if self.pos.y > initialBottom + 20:
+            self.rect.x = self.game.finalplatX
+            self.rect.y = cellH + (cellH - finalPlatH) + 50 - 60
+            Princess.alive = False
         if Princess.blood <= 0:
             Princess.life -= 1
             if Princess.life > 0:
@@ -660,9 +648,7 @@ class Jasmine(Princess):
         self.updateMovement()
         #self.flyLimit()
         self.hitbyFireball()
-        self.hitFinalFire()
         self.hitFire()
-        self.hitAxe()
         self.collectReward()
 
     def draw(self):
@@ -858,13 +844,13 @@ class Dragon(Enemy):
             (targetR, targetC) = path[0]
             # move toward the platform
             if targetR > vecR:
-                self.vy = 5
+                self.vy = 10
             if targetR < vecR:
-                self.vy = -10
+                self.vy = -15
             if targetR == vecR:
                 self.vy = 0
             if targetC > vecC:
-                self.vx = 5
+                self.vx = 10
             if targetC < vecC:
                 self.vx = -10
             if targetC == vecC:
@@ -885,56 +871,75 @@ class AxeEnemy(Enemy):
     def __init__(self, game, x, y):
         super().__init__(game, x, y)
         self.image = axeEnemyImg
-        self.vx = 0
-        self.vy = 0
         self.rect.x = x
         self.rect.y = y
         self.blood = 2000
         self.hBarL = 100
+        self.vx = 0
+        self.vy = 0
+        self.accy = 0
+
+    def movement(self):
+        self.accy = 1
+        self.vy += self.accy
+        self.rect.y += self.vy + 0.5 * self.accy
 
     def update(self):
-        print(f'self.game.x{self.game.x}')
-        print(f'stopScrolling{stopScrolling}')
-        print(f'self.game.finalplatX {self.game.finalplatX}')
-        (x, y) = self.rect.center
-        (x1,y1) = self.game.princess.rect.center
+        print(Princess.finalMatrix)
+        (x, y) = self.rect.centerx, self.rect.centery
+        (x1,y1) = self.game.princess.rect.centerx, self.game.princess.rect.centery
         if x1 > self.game.finalplatX:
             xdistance = x - self.game.finalplatX
-            vecR = int((y-50) // cellH)
+            vecR = int((y-50)// cellH)
             vecC = int((xdistance) // cellW)
-            print(f'vecR {vecR} vecC{vecC}' )
             if (vecR >= 0 and vecR < rows and vecC >= 0 and vecC < cols and Princess.finalMatrix[vecR][vecC] != 0
                     and Princess.finalMatrix[vecR][vecC] != "E"):
                 Princess.finalMatrix = updateMatrixS(Princess.finalMatrix)
                 Princess.finalMatrix[vecR][vecC] = "S"
-                path = solve(Princess.finalMatrix)
-                (targetR, targetC) = path[0]
-                # move toward the platform
-                if targetR > vecR:
-                    self.vy = 5
-                if targetR < vecR:
-                    self.vy = -5
-                if targetR == vecR:
-                    self.vy = 0
-                if targetC > vecC:
-                    self.vx = 5
-                if targetC < vecC:
-                    self.vx = -5
-                if targetC == vecC:
-                    self.vx = 0
-            if Princess.finalMatrix[vecR][vecC] == "E":
-                self.vx = 0
-                self.vy = 0
-            if self.rect.x <= 0:
-                self.rect.x = 0
-            if self.rect.x >= neWidth:
-                self.rect.x = neWidth
+                if self.vy == 0:
+                    path = solve(Princess.finalMatrix)
+                    (targetR, targetC) = path[0]
+                    #move toward the platform
+                    if targetR == vecR and targetC < vecC:
+                        self.vx = -5
+                    if targetR == vecR and targetC > vecC:
+                        self.vx = 5
+                    if targetR < vecR:
+                        if targetC < vecC:
+                            self.vy = -15
+                            self.vx = -5
+                        if targetC > vecC:
+                            self.vy = -15
+                            self.vx = 5
+                    if targetR > vecR:
+                        if targetC < vecC:
+                            self.vx = -5
+                        if targetC > vecC:
+                            self.vx = 5
+            if self.rect.x < self.game.finalplatX:
+                self.rect.x = self.game.finalplatX
+            if self.rect.x + 60 - self.game.finalplatX > neWidth:
+                self.rect.x = neWidth + self.game.finalplatX - 60
             if self.rect.y <= 50:
                 self.rect.y = 50
-            if self.rect.y > initialBottom:
+            if self.rect.bottom > initialBottom:
                 self.kill()
             self.rect.x += self.vx
-            self.rect.y += self.vy
+            self.movement()
+        self.hitPlatforoms()
+
+
+    def hitPlatforoms(self):
+            # if the enemy hits the platform, it will stand on the platform
+            if self.vy > 0:
+                hitPlatform = pg.sprite.spritecollide(self, self.game.finalplatforms, False)
+                if hitPlatform:
+                    for hit in hitPlatform:
+                        # make sure that the enemy will not jump automatically to the platform above when it hits it
+                        if self.rect.bottom <= hit.rect.bottom:
+                            self.vy = 0
+                            self.rect.bottom = hit.rect.top
+
 
     def draw(self):
         self.game.screen.blit(self.image, self.rect)
@@ -1076,7 +1081,8 @@ class Fireball(pg.sprite.Sprite):
         if self.fire == False:
             self.rect.x = self.enemy.rect.x
             self.rect.y = self.enemy.rect.y
-        self.shooting()
+        if self.game.x < -(plat5X2 - width):
+         self.shooting()
         if self.shot == False and self.fire == True:
             (x1, y1) = self.game.princess.rect.center
             (x2, y2) = self.rect.center
@@ -1133,11 +1139,11 @@ class Axe(pg.sprite.Sprite):
         # can predict movement
         self.distance = ((self.rect.x - self.game.axeEnemy.rect.x) ** 2 + (
                     self.rect.y - self.game.axeEnemy.rect.y) ** 2) ** 0.5
-        self.game.princess.hitbyAxe = False
         if self.fire == False:
             self.rect.x = self.game.axeEnemy.rect.x
             self.rect.y = self.game.axeEnemy.rect.y
-        self.shooting()
+        if self.game.princess.rect.x > self.game.finalplatX:
+            self.shooting()
         if self.shot == False and self.fire == True:
             (x1, y1) = self.game.princess.rect.center
             (x2, y2) = self.rect.center
@@ -1159,10 +1165,25 @@ class Axe(pg.sprite.Sprite):
                 self.rect.y = self.slope * self.rect.x + self.constant
             if self.slope == 0:
                 self.rect.y += 10
-            if self.distance > 300:
+            if self.distance > 200:
                 self.display = False
                 self.fire = False
                 self.shot = False
+            self.hitPrincess()
+
+    def hitPrincess(self):
+        hits = pg.sprite.spritecollide(self, self.game.princesses, False)
+        if hits:
+            self.game.princess.hitbyAxe = True
+            Princess.blood -= 5
+            Princess.hBarL -= 5 / princessBlood * princesshBarL
+            if hits[0].rect.x < self.rect.x:
+                hits[0].vel.x = -2
+            if hits[0].rect.x > self.rect.x:
+                hits[0].vel.x = 2
+            self.display = False
+        else:
+            self.game.princess.hitbyAxe = False
 
     def draw(self):
         if self.display == True:
