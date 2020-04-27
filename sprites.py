@@ -257,10 +257,11 @@ class Princess(pg.sprite.Sprite):
         Princess.alive = True
 
     def updateMatrix(self):
-        if self.game.x <= (-stopScrolling):
-            (x, y) = self.rect.center
-            vecR = int(y // cellH)
-            vecC = int((x - 50) // cellW)
+        (x, y) = self.rect.center
+        if x > self.game.finalplatX:
+            xdistance = x - self.game.finalplatX
+            vecR = int((y - 50) // cellH)
+            vecC = int((xdistance) // cellW)
             if vecR >= 0 and vecR < rows and vecC >= 0 and vecC < cols and Princess.finalMatrix[vecR][vecC] != 0 and \
                     Princess.finalMatrix[vecR][vecC] != "S":
                 Princess.finalMatrix = updateMatrixE(Princess.finalMatrix)
@@ -304,6 +305,8 @@ class Princess(pg.sprite.Sprite):
                 self.rect.x = 0
             if self.rect.x + 60 > width:
                 self.rect.x = width - 60
+            if self.rect.y <= 50:
+               self.rect.y = 50
             if Princess.blood <= 0:
                 Princess.life -= 1
                 if Princess.life > 0:
@@ -361,12 +364,10 @@ class Princess(pg.sprite.Sprite):
             self.hitbyfireball = True
             Princess.blood -= 5
             Princess.hBarL -= 5 / princessBlood * princesshBarL
-            print(f'hits[0]rect.x {hits[0].rect.x}')
-            print(f'princess.rect.x {self.rect.x}')
-            if hits[0].rect.x < self.rect.x:
-                self.vel.x = 5
-            if hits[0].rect.x > self.rect.x:
-                self.vel.x = -5
+            # if hits[0].rect.x < self.rect.x:
+            #     self.vel.x = 5
+            # if hits[0].rect.x > self.rect.x:
+            #     self.vel.x = -5
             hits[0].display = False
         else:
             self.hitbyfireball = False
@@ -617,6 +618,8 @@ class Jasmine(Princess):
             self.rect.x = 0
         if self.rect.x + 60 > width:
             self.rect.x = width - 60
+        if self.rect.y <= 50:
+            self.rect.y = 50
         if Princess.blood <= 0:
             Princess.life -= 1
             if Princess.life > 0:
@@ -655,7 +658,7 @@ class Jasmine(Princess):
         self.updateImg()
         self.updateMatrix()
         self.updateMovement()
-        self.flyLimit()
+        #self.flyLimit()
         self.hitbyFireball()
         self.hitFinalFire()
         self.hitFire()
@@ -890,11 +893,16 @@ class AxeEnemy(Enemy):
         self.hBarL = 100
 
     def update(self):
-        print(self.game.x)
-        if self.game.x <= -(stopScrolling):
-            (x, y) = self.rect.center
-            vecR = int(y // cellH)
-            vecC = int((x - 50) // cellW)
+        print(f'self.game.x{self.game.x}')
+        print(f'stopScrolling{stopScrolling}')
+        print(f'self.game.finalplatX {self.game.finalplatX}')
+        (x, y) = self.rect.center
+        (x1,y1) = self.game.princess.rect.center
+        if x1 > self.game.finalplatX:
+            xdistance = x - self.game.finalplatX
+            vecR = int((y-50) // cellH)
+            vecC = int((xdistance) // cellW)
+            print(f'vecR {vecR} vecC{vecC}' )
             if (vecR >= 0 and vecR < rows and vecC >= 0 and vecC < cols and Princess.finalMatrix[vecR][vecC] != 0
                     and Princess.finalMatrix[vecR][vecC] != "E"):
                 Princess.finalMatrix = updateMatrixS(Princess.finalMatrix)

@@ -19,10 +19,10 @@ height = 720
 fps = 200
 hw = width / 2
 startScrollingPosX = hw
-stopScrolling = stageWidth - width - startScrollingPosX
+stopScrolling = stageWidth - hw - startScrollingPosX
 playerStatusY = height * 0.1
 
-debugdis = stageWidth - width 
+debugdis = stageWidth - width
 
 # player data
 princessWidth = 65
@@ -181,7 +181,7 @@ def getPlatPos(matrix):
     for i in range(len(matrix)):
         for j in range(len(matrix[0])):
             if matrix[i][j] == 1:
-                x = cellW * j + margin + stopScrolling + startScrollingPosX + 50
+                x = cellW * j + margin + stageWidth - width
                 y = cellH * i + (cellH - finalPlatH) + 50
                 result.append((x, y))
     return result

@@ -22,8 +22,7 @@ class Game:
         self.gameOver = False
         self.x = 0
         self.allSrpites = pg.sprite.Group()
-        self.vx = 0
-        self.accX = 0
+        self.finalplatX = stageWidth - width
 
     def addFire(self):
         self.fires = pg.sprite.Group()
@@ -130,7 +129,7 @@ class Game:
         self.addAxe()
         self.ice = Ice(self)
         # self.dragon = Dragon(self,castleX - dragonSize - 50, castleY)
-        self.axeEnemy = AxeEnemy(self,cellW * 3 + margin + stopScrolling + startScrollingPosX + 50,  cellH * 5 + (cellH - finalPlatH)-60)
+        self.axeEnemy = AxeEnemy(self,cellW * 3 + margin + stageWidth - width,  cellH * 5 + (cellH - finalPlatH)-60)
         self.castle = Castle(self, castleX, castleY)
         self.carpet = Carpet(self)
         # self.attackfire = Attackfire(self)
@@ -160,6 +159,7 @@ class Game:
         if self.x > -(stopScrolling) and self.princess.pos.x > startScrollingPosX:
             self.princess.pos.x = startScrollingPosX
             self.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+            self.finalplatX +=  -(self.princess.vel.x + 0.5 * self.princess.acc.x)
         else:
             self.princess.pos.x += self.princess.vel.x + 0.5 * self.princess.acc.x
 
