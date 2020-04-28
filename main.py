@@ -20,12 +20,14 @@ class Game:
         self.clock = pg.time.Clock()
         self.running = True
         self.gameOver = False
+        self.winning = False
         self.x = 0
         self.allSrpites = pg.sprite.Group()
         self.finalplatX = stageWidth - width
         self.i = 0
         self.matrix = matrix
         self.finalPlatPos = []
+        self.mousePos = (0, 0)
 
     def addFire(self):
         self.fires = pg.sprite.Group()
@@ -110,10 +112,14 @@ class Game:
         self.allSrpites.add(self.elsa)
         self.allSrpites.add(self.jasmine)
 
-    def addAxe(self):
+    def addAxeEnemy(self):
         self.axes = pg.sprite.Group()
+        self.axeenemies = pg.sprite.Group()
         self.axe = Axe(self)
         self.axes.add(self.axe)
+        self.axeEnemy = AxeEnemy(self, cellW * 3 + margin + stageWidth - width, cellH * 1 + (cellH - finalPlatH) - 64)
+        self.axeenemies.add(self.axeEnemy)
+
 
     def new(self):
         # start a new game
@@ -130,10 +136,10 @@ class Game:
         self.putEnemies()
         self.addFire()
         self.addFireBall()
-        self.addAxe()
+        self.addAxeEnemy()
         self.ice = Ice(self)
+        self.ball = Ball(self)
         # self.dragon = Dragon(self,castleX - dragonSize - 50, castleY)
-        self.axeEnemy = AxeEnemy(self, cellW * 3 + margin + stageWidth - width, cellH * 1 + (cellH - finalPlatH) - 64)
         self.castle = Castle(self, castleX, castleY)
         self.carpet = Carpet(self)
         # self.attackfire = Attackfire(self)
@@ -150,14 +156,13 @@ class Game:
             self.draw()
 
     def addEnemies(self):
-        if len(self.enemies) < 4:
-            for i in range(2):
+        if len(self.enemies) < 2:
+            for i in range(1):
                 enemy = Enemy(self, random.randint(400, 1000), initialCenter)
                 self.enemies.add(enemy)
             for i in range(1):
                 quickEnemy = QuickEnemy(self, random.randint(600, 1200), initialCenter)
                 self.enemies.add(quickEnemy)
-
 
     def backgroudScrolling(self):
         self.relX = self.x % bgWidth
@@ -206,7 +211,8 @@ class Game:
             self.gameOver = True
 
     def updateSprites(self):
-        if self.x > -(stopScrolling) and self.princess.pos.x > startScrollingPosX:
+        if self.x > -(stopScrolling):
+          if self.princess.pos.x > startScrollingPosX:
             for platform in self.platforms:
                 platform.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
             for obstacle in self.obstacles:
@@ -230,7 +236,6 @@ class Game:
             platform = Platform(x, y, finalPlatW, finalPlatH, finalPlatColor)
             self.finalplatforms.add(platform)
 
-
     def getPlatPos(self, matrix):
         result = []
         for i in range(len(matrix)):
@@ -253,12 +258,18 @@ class Game:
             if self.i == 2:
                 self.i = 0
             else:
-               self.i += 1
+                self.i += 1
             self.timeElapsed = 0
+
+
+    def win(self):
+         if self.princess.pos.x > width - castleSize/2 and not self.axeEnemy.alive:
+             self.winning = True
 
     def update(self):
         # game loop update
         self.clock.tick(fps)
+        print(f'self.finalplatX{self.finalplatX}')
         self.updateMatrix()
         self.backgroudScrolling()
         self.enemies.update()
@@ -276,12 +287,14 @@ class Game:
         self.castle.update()
         self.carpet.update()
         self.finalfire.update()
-        # self.addEnemies()
+        self.addEnemies()
         # self.dragon.fireAttack()
         self.axeEnemy.update()
         self.axe.update()
+        self.ball.update()
         self.fireballs.update()
         self.isGameOver()
+        self.win()
         # self.attackfire.update()
 
     # all the event functions
@@ -305,6 +318,10 @@ class Game:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.running = False
+            if event.type == pg.MOUSEBUTTONUP:
+                self.mousePos = pg.mouse.get_pos()
+                if self.ball.display == False:
+                    self.ball.shooting()
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_r:
                     self.gameOver = False
@@ -351,6 +368,31 @@ class Game:
         restart = font2.render("Press 'r' to restart", True, (0, 0, 0))
         self.screen.blit(gameover, (x, y))
         self.screen.blit(restart, (x1, y1))
+
+
+
+    def showWinningScreen(self):
+        background = pg.image.load(backgroundImg)
+        self.screen.blit(background, ((0, 0)))
+        image1 = celebrationImg
+        rect1 = image1.get_rect()
+        rect1.center = (hw, 2/3*height)
+        self.screen.blit(image1, rect1)
+        image2 = potionImg
+        rect2 = image2.get_rect()
+        rect2.center = (hw, 2 / 3 * height)
+        self.screen.blit(image2, rect2)
+        x = width / 5
+        y = height / 6
+        x1 = x + 100
+        y1 = y + 100
+        font1 = pg.font.Font("StaySafe-Regular.ttf", 100)
+        font2 = pg.font.Font("StaySafe-Regular.ttf", 80)
+        congrat = font1.render("Congratulations!", True, (0, 0, 0))
+        win = font2.render("You win!", True, (0, 0, 0))
+        self.screen.blit(congrat, (x, y))
+        self.screen.blit(win, (x1, y1))
+
 
     def drawEnemyDamage(self):
         for enemy in self.enemies:
@@ -428,17 +470,21 @@ class Game:
         for fireball in self.fireballs:
             fireball.draw()
 
+    def drawFlyingEnemies(self):
+        for enemy in self.flyingenemies:
+            enemy.draw()
+
     def draw(self):
         if self.gameOver == False:
             self.drawScrollBg()
             self.castle.draw()
             self.enemies.draw(self.screen)
-            self.flyingenemies.draw(self.screen)
+            self.drawFlyingEnemies()
             self.drawFreeze()
             self.drawFire()
             self.sword.draw()
             self.drawPlatforms()
-            #self.drawObstacles()
+            # self.drawObstacles()
             self.drawRewards()
             self.drawPrincess()
             self.showEnemyAttack()
@@ -456,6 +502,8 @@ class Game:
             self.carpet.draw()
             # self.attackfire.draw()
             self.drawLife()
+            self.ball.draw()
+            self.showWinningScreen()
         else:
             self.showOverScreen()
         pg.display.update()

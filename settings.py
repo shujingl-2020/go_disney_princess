@@ -10,7 +10,7 @@ finalPlatColor = (5, 0, 139)
 
 # stage size
 bgWidth = 1280
-stageWidth = bgWidth * 4
+stageWidth = bgWidth * 6
 stagePosX = 0
 
 # display surface
@@ -68,6 +68,8 @@ enemySize = 60
 enemyhBarW = enemySize
 enemyhBarH = 10
 attackValue = 20
+bosshBarL = 80
+bosshBarCol = (139,1,3)
 
 # score position
 scoreX = 50
@@ -290,3 +292,11 @@ lifeImg = "image/heart.png"
 freezeImg = "image/freeze.png"
 freezefireImg = "image/freezefire.png"
 axeImg = "image/axe.png"
+#<div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+ballImg = "image/circle.png"
+#Icons made by <a href="https://www.flaticon.com/authors/pixelmeetup" title="Pixelmeetup">Pixelmeetup</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+bigballImg = "image/dot.png"
+#Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+medicineImg = "image/potion.png"
+#Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+celebrationImg = "image/rocket.png"
