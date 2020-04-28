@@ -285,7 +285,8 @@ class Game:
 
     def update(self):
         # game loop update
-      if not self.instruction and not self.intro:
+      if not self.gameOver:
+       if not self.instruction and not self.intro:
         self.clock.tick(fps)
         self.updateMatrix()
         self.backgroudScrolling()

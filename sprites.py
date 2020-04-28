@@ -1022,8 +1022,8 @@ class AxeEnemy(Enemy):
                                 self.vx = -5
                             if targetC > vecC:
                                 self.vx = 5
-                if  Princess.finalMatrix[vecR][vecC] == "E":
-                    Princess.life -=1
+                if Princess.finalMatrix[vecR][vecC] == "E":
+                    Princess.blood -= 50
                 if self.rect.x < self.game.finalplatX:
                     self.rect.x = self.game.finalplatX
                 if self.rect.x + 60 - self.game.finalplatX > neWidth:
@@ -1039,14 +1039,13 @@ class AxeEnemy(Enemy):
 
     def hitPlatforoms(self):
             # if the enemy hits the platform, it will stand on the platform
-            if self.vy > 0:
-                hitPlatform = pg.sprite.spritecollide(self, self.game.finalplatforms, False)
-                if hitPlatform:
-                    for hit in hitPlatform:
+            if self.vy >= 0:
+                hit = pg.sprite.spritecollide(self, self.game.finalplatforms, False)
+                if hit:
                         # make sure that the enemy will not jump automatically to the platform above when it hits it
-                        if self.rect.bottom <= hit.rect.bottom:
+                        if self.rect.bottom <= hit[0].rect.bottom:
                             self.vy = 0
-                            self.rect.bottom = hit.rect.top
+                            self.rect.bottom = hit[0].rect.top
 
 
     def drawHealthBar(self):

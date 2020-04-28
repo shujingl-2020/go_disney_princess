@@ -202,7 +202,7 @@ neWidth = width - 256
 newHeight = height - 200
 cellW = (neWidth) / cols
 cellH = (newHeight) / rows
-margin = cellW / 5
+margin = cellW / 6
 finalPlatW = cellW - 2 * margin
 finalPlatH = 15
 
