@@ -1,9 +1,12 @@
+# This file includes tha main game loop
+
+
 from sprites import *
 import random
 
 
 # create a game class
-# used the framework from: https://www.youtube.com/watch?v=uWvb3QzA48c&t=1078s
+# used the file organization framework from: https://www.youtube.com/watch?v=uWvb3QzA48c&t=1078s
 
 class Game:
     # initialize the game
@@ -28,6 +31,8 @@ class Game:
         self.matrix = matrix
         self.finalPlatPos = []
         self.mousePos = (0, 0)
+        self.intro = True
+        self.instruction = False
 
     def addFire(self):
         self.fires = pg.sprite.Group()
@@ -42,7 +47,7 @@ class Game:
     def putEnemies(self):
         self.enemies = pg.sprite.Group()
         self.flyingenemies = pg.sprite.Group()
-        for i in range(3):
+        for i in range(4):
             enemy = Enemy(self, random.randint(400, 1000), initialCenter)
             self.enemies.add(enemy)
         for i in range(2):
@@ -52,12 +57,15 @@ class Game:
             flyEnemy = FlyingEnemy(self, random.randint(plat5X2, plat5X2 + width - flyenemySize),
                                    random.randint(flyenemyY, flyenemyY + 100))
             self.flyingenemies.add(flyEnemy)
+        self.dragon = Dragon(self, plat5X2 + 700, castleY)
 
     def addFireBall(self):
         self.fireballs = pg.sprite.Group()
         for enemy in self.flyingenemies:
             fireball = Fireball(self, enemy)
             self.fireballs.add(fireball)
+        self.dragonfireball = DragonFireball(self, self.dragon)
+        self.fireballs.add(self.dragonfireball)
 
     def putPlatforms(self):
         self.platforms = pg.sprite.Group()
@@ -120,7 +128,6 @@ class Game:
         self.axeEnemy = AxeEnemy(self, cellW * 3 + margin + stageWidth - width, cellH * 1 + (cellH - finalPlatH) - 64)
         self.axeenemies.add(self.axeEnemy)
 
-
     def new(self):
         # start a new game
         self.x = 0
@@ -139,10 +146,10 @@ class Game:
         self.addAxeEnemy()
         self.ice = Ice(self)
         self.ball = Ball(self)
-        self.dragon = Dragon(self,stageWidth - 2*width, castleY)
         self.castle = Castle(self, castleX, castleY)
+        self.mountain = Mountain(self, plat5X2 + 1.5*width, castleY-120)
         self.carpet = Carpet(self)
-        #self.attackfire = Attackfire(self)
+        # self.attackfire = Attackfire(self)
         # initialize the game
         self.run()
 
@@ -156,13 +163,10 @@ class Game:
             self.draw()
 
     def addEnemies(self):
-        if len(self.enemies) < 2:
-            for i in range(1):
-                enemy = Enemy(self, random.randint(400, 1000), initialCenter)
-                self.enemies.add(enemy)
-            for i in range(1):
-                quickEnemy = QuickEnemy(self, random.randint(600, 1200), initialCenter)
-                self.enemies.add(quickEnemy)
+        if len(self.flyingenemies) < 2:
+            for i in range(5):
+                enemy = FlyingEnemy(self, random.randint(400, 1000), flyenemyY)
+                self.flyingenemies.add(enemy)
 
     def backgroudScrolling(self):
         self.relX = self.x % bgWidth
@@ -210,25 +214,38 @@ class Game:
         if Princess.alive == False:
             self.gameOver = True
 
+    def buttonPressed(self, mousepos):
+        if self.intro:
+            (x, y) = mousepos
+            posx1 = 1 / 5 * width - 20
+            posx2 = 3 / 5 * width -20
+            posy = 1 / 2 * height
+            if x > posx1 and x < posx1 + buttonW and y > posy and y < posy + buttonH:
+                self.intro = False
+            if x > posx2 and x < posx2 + buttonW and y > posy and y < posy + buttonH:
+                self.intro = False
+                self.instruction = True
+
     def updateSprites(self):
         if self.x > -(stopScrolling):
-          if self.princess.pos.x > startScrollingPosX:
-            for platform in self.platforms:
-                platform.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
-            for obstacle in self.obstacles:
-                obstacle.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
-            for reward in self.rewards:
-                reward.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
-            for enemy in self.enemies:
-                enemy.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
-            for enemy in self.flyingenemies:
-                enemy.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
-            for fire in self.fires:
-                fire.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
-            self.finalfire.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
-            self.axeEnemy.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
-            self.castle.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
-            self.dragon.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+              if self.princess.pos.x > startScrollingPosX:
+                for platform in self.platforms:
+                    platform.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+                for obstacle in self.obstacles:
+                    obstacle.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+                for reward in self.rewards:
+                    reward.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+                for enemy in self.enemies:
+                    enemy.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+                for enemy in self.flyingenemies:
+                    enemy.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+                for fire in self.fires:
+                    fire.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+                self.finalfire.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+                self.axeEnemy.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+                self.castle.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+                self.mountain.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+                self.dragon.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
 
     def addFinalPlat(self):
         self.finalplatforms = pg.sprite.Group()
@@ -247,7 +264,6 @@ class Game:
                     result.append((x, y))
         return result
 
-
     def updateMatrix(self):
         self.matrix = matrixes[self.i]
         self.finalPlatPos = self.getPlatPos(self.matrix)
@@ -263,13 +279,13 @@ class Game:
                 self.i += 1
             self.timeElapsed = 0
 
-
     def win(self):
-         if self.princess.pos.x > width - castleSize/2 and self.axeEnemy.alive == False:
-             self.winning = True
+        if self.princess.pos.x > width - castleSize / 2 and self.axeEnemy.alive == False:
+            self.winning = True
 
     def update(self):
         # game loop update
+      if not self.instruction and not self.intro:
         self.clock.tick(fps)
         self.updateMatrix()
         self.backgroudScrolling()
@@ -289,6 +305,7 @@ class Game:
         self.carpet.update()
         self.finalfire.update()
         self.addEnemies()
+        self.mountain.update()
         # self.dragon.fireAttack()
         self.axeEnemy.update()
         self.axe.update()
@@ -321,10 +338,20 @@ class Game:
                 self.running = False
             if event.type == pg.MOUSEBUTTONUP:
                 self.mousePos = pg.mouse.get_pos()
+                self.buttonPressed(self.mousePos)
                 if self.ball.display == False:
                     self.ball.shooting()
             if event.type == pg.KEYDOWN:
-                if event.key == pg.K_r:
+                if event.key == pg.K_ESCAPE:
+                    self.instruction = False
+                elif event.key == pg.K_p:
+                    self.instruction = True
+                elif event.key == pg.K_b:
+                    self.instruction = False
+                    self.intro = True
+                elif event.key == pg.K_r:
+                    self.intro = True
+                    self.drawMainMenu()
                     self.gameOver = False
                     self.new()
                 elif event.key == pg.K_s:
@@ -350,51 +377,121 @@ class Game:
     # all the drawing functions
 
     def drawScrollBg(self):
-        background = pg.image.load(backgroundImg).convert()
-        bgWidth, bgHeight = background.get_rect().size
-        self.screen.blit(background, (self.relX - bgWidth, 0))
+        bgWidth, bgHeight = backgroundImg.get_rect().size
+        self.screen.blit(backgroundImg, (self.relX - bgWidth, 0))
         if self.relX < width:
-            self.screen.blit(background, (self.relX, 0))
+            self.screen.blit(backgroundImg, (self.relX, 0))
 
     def showOverScreen(self):
-        background = pg.image.load(backgroundImg)
-        self.screen.blit(background, ((0, 0)))
+        self.screen.blit(backgroundImg, ((0, 0)))
         x = width / 2 - 100
         y = height / 2 - 150
         x1 = x - 50
         y1 = y + 100
-        font1 = pg.font.Font("StaySafe-Regular.ttf", 100)
-        font2 = pg.font.Font("StaySafe-Regular.ttf", 80)
+        font1 = pg.font.Font("fonts/StaySafe-Regular.ttf", 100)
+        font2 = pg.font.Font("fonts/StaySafe-Regular.ttf", 80)
         gameover = font1.render("Game Over", True, (0, 0, 0))
         restart = font2.render("Press 'r' to restart", True, (0, 0, 0))
         self.screen.blit(gameover, (x, y))
         self.screen.blit(restart, (x1, y1))
 
+    def drawMainMenu(self):
+        if self.intro == True:
+            self.screen.blit(castlebackgroundImg, ((0, 0)))
+            image = pg.Surface((buttonW, buttonH))
+            image.fill(buttonColor)
+            rect1 = image.get_rect()
+            rect1.x = 1 / 5 * width - 20
+            rect1.y = 1 / 2 * height
+            self.screen.blit(image, rect1)
+            rect2 = image.get_rect()
+            rect2.x = 3 / 5 * width -20
+            rect2.y = 1 / 2 * height
+            self.screen.blit(image, rect2)
+            font1 = pg.font.Font("fonts/Choco Bear.otf", 40)
+            font2 = pg.font.Font("fonts/Choco Bear.otf", 40)
+            start = font1.render("Start", True, black)
+            x1 = rect1.x + 60
+            y1 = rect1.y + 30
+            instruction = font2.render("Instruction", True, black)
+            x2 = rect2.x + 20
+            y2 = rect2.y + 30
+            self.screen.blit(start, (x1, y1))
+            self.screen.blit(instruction, (x2, y2))
+
+    def drawInstruction(self):
+      if self.instruction:
+        self.screen.blit(castlebackgroundImg, ((0, 0)))
+        w = 4/5 * width
+        h= 4/5 * height + 100
+        image = pg.Surface((w, h))
+        image.fill(white)
+        x = 80
+        y = 30
+        self.screen.blit(image, ((x,y)))
+        x = 140
+        y11 = 80
+        y = y11 + 50
+        y1 = y + 50
+        y2 = y1 + 50
+        y3 = y2 + 50
+        y4 = y3 + 50
+        y5 = y4 + 50
+        y6 = y5 + 50
+        y7 = y6 + 50
+        y8 = y7 + 50
+        y9 = y8 + 50
+        y10 = y9 + 50
+        font = pg.font.Font("fonts/KurriIslandPERSONAL-Light.ttf", 25)
+        font1 = pg.font.Font("fonts/KurriIslandPERSONAL-Light.ttf", 40)
+        inst = font.render("Press 'b' to go back to the main menu", True, black)
+        ins = font.render("Press 'p' to pause the game", True, black)
+        ins1 = font.render("Press 'esc' to return to the game", True, black)
+        ins2 = font.render("Press 'r' to restart the game", True, black)
+        ins3= font.render("Press 's' to switch role", True, black)
+        ins4 = font.render("Press 'space' to jump", True, black)
+        ins5 = font.render("Press 'q' for Mulan to attack", True, black)
+        ins6 = font.render("Press 'w' for Elsa to shoot ice", True, black)
+        ins7 = font.render("Press 'f' for Jasmine to fly", True, black)
+        ins8 = font.render("Press 'e' for Jasmine to float", True, black)
+        ins9 = font.render("Press 'e' again for Jasmine to fall down", True, black)
+        ins10 = font.render("Click mouse to shoot balls to enemies", True, black)
+        self.screen.blit(inst, (x, y11))
+        self.screen.blit(ins, (x, y))
+        self.screen.blit(ins1, (x, y1))
+        self.screen.blit(ins2, (x, y2))
+        self.screen.blit(ins3, (x, y3))
+        self.screen.blit(ins4, (x, y4))
+        self.screen.blit(ins5, (x, y5))
+        self.screen.blit(ins6, (x, y6))
+        self.screen.blit(ins7, (x, y7))
+        self.screen.blit(ins8, (x, y8))
+        self.screen.blit(ins9, (x, y9))
+        self.screen.blit(ins10, (x, y10))
+
 
 
     def showWinningScreen(self):
-       if self.winning:
-        background = pg.image.load(backgroundImg)
-        self.screen.blit(background, ((0, 0)))
-        image1 = celebrationImg
-        rect1 = image1.get_rect()
-        rect1.center = (hw, 2/3*height)
-        self.screen.blit(image1, rect1)
-        image2 = potionImg
-        rect2 = image2.get_rect()
-        rect2.center = (hw, 2 / 3 * height)
-        self.screen.blit(image2, rect2)
-        x = width / 5
-        y = height / 6
-        x1 = x + 100
-        y1 = y + 100
-        font1 = pg.font.Font("StaySafe-Regular.ttf", 100)
-        font2 = pg.font.Font("StaySafe-Regular.ttf", 80)
-        congrat = font1.render("Congratulations!", True, (0, 0, 0))
-        win = font2.render("You win!", True, (0, 0, 0))
-        self.screen.blit(congrat, (x, y))
-        self.screen.blit(win, (x1, y1))
-
+            if self.winning:
+                self.screen.blit(backgroundImg, ((0, 0)))
+                image1 = celebrationImg
+                rect1 = image1.get_rect()
+                rect1.center = (hw, 2 / 3 * height)
+                self.screen.blit(image1, rect1)
+                image2 = potionImg
+                rect2 = image2.get_rect()
+                rect2.center = (hw, 2 / 3 * height)
+                self.screen.blit(image2, rect2)
+                x = width / 5
+                y = height / 6
+                x1 = x + 100
+                y1 = y + 100
+                font1 = pg.font.Font("fonts/StaySafe-Regular.ttf", 100)
+                font2 = pg.font.Font("fonts/StaySafe-Regular.ttf", 80)
+                congrat = font1.render("Congratulations!", True, (0, 0, 0))
+                win = font2.render("You win!", True, (0, 0, 0))
+                self.screen.blit(congrat, (x, y))
+                self.screen.blit(win, (x1, y1))
 
     def drawEnemyDamage(self):
         for enemy in self.enemies:
@@ -435,28 +532,13 @@ class Game:
         for enemy in self.enemies:
             enemy.drawHealthBar()
 
-    def drawInstruction(self):
-        x = 2 * width / 3 - 50
-        y1 = 50
-        y2 = y1 + 30
-        y3 = y2 + 30
-        y4 = y1 - 30
-        font = pg.font.Font("StaySafe-Regular.ttf", 35)
-        ins1 = font.render("press 'q' for Mulan to attack", True, black)
-        ins2 = font.render("press 'w' for Elsa to shoot", True, black)
-        ins3 = font.render("press 'f' for Jasmine to fly", True, black)
-        ins4 = font.render("press 's' to switch role", True, black)
-        self.screen.blit(ins1, (x, y1))
-        self.screen.blit(ins2, (x, y2))
-        self.screen.blit(ins3, (x, y3))
-        self.screen.blit(ins4, (x, y4))
 
     def drawLife(self):
         image = lifeImg
         rect = image.get_rect()
         rect.center = (rwNumberX + 70, rwNumberY + 20)
         self.screen.blit(image, rect)
-        font = pg.font.Font("StaySafe-Regular.ttf", 30)
+        font = pg.font.Font("fonts/StaySafe-Regular.ttf", 30)
         heart = font.render(f'{Princess.life}', True, black)
         self.screen.blit(heart, (rwNumberX + 100, rwNumberY))
 
@@ -478,6 +560,11 @@ class Game:
 
     def draw(self):
         if self.gameOver == False:
+           if self.intro:
+             self.drawMainMenu()
+           elif self.instruction:
+             self.drawInstruction()
+           else:
             self.drawScrollBg()
             self.castle.draw()
             self.enemies.draw(self.screen)
@@ -488,13 +575,14 @@ class Game:
             self.drawPlatforms()
             # self.drawObstacles()
             self.drawRewards()
+            self.mountain.draw()
             self.drawPrincess()
             self.showEnemyAttack()
             self.rewardIcon.drawCircle()
             self.drawFire()
             self.drawEnemyHBar()
             self.drawEnemyDamage()
-            #self.dragon.draw()
+            self.dragon.draw()
             self.axeEnemy.draw()
             self.ice.draw()
             self.drawInstruction()

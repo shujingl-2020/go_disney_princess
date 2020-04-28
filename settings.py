@@ -1,3 +1,5 @@
+# this file includes all the basic settings, sprite attributes, and image files with citations
+
 # colors
 green = (52, 168, 84)
 yellow = (251, 188, 4)
@@ -6,11 +8,12 @@ red = (255, 0, 0)
 black = (0, 0, 0)
 blue = (5, 90, 139)
 purple = (117, 80, 166)
-finalPlatColor = (5, 0, 139)
+finalPlatColor = (255,154,1)
+white = (255,255,255)
 
 # stage size
 bgWidth = 1280
-stageWidth = bgWidth * 4
+stageWidth = bgWidth * 5
 stagePosX = 0
 
 # display surface
@@ -22,7 +25,12 @@ startScrollingPosX = hw
 stopScrolling = stageWidth - hw - startScrollingPosX - 100
 playerStatusY = height * 0.1
 
-debugdis = stageWidth - width
+
+#button
+buttonW = 1/5 * width + 70
+buttonH = 1/6 * height
+buttonColor = (250,217,193)
+
 
 # player data
 princessWidth = 65
@@ -68,7 +76,7 @@ enemySize = 60
 enemyhBarW = enemySize
 enemyhBarH = 10
 attackValue = 20
-bosshBarL = 80
+bosshBarL = 100
 bosshBarCol = (139,1,3)
 
 # score position
@@ -173,7 +181,7 @@ matrix2 = [[1, 0, 1, 1, 0],
           [0, 1, 0, 1, 1],
           [1, 0, 1, 0, 1],
           [0, "E", 0, 1, 0],
-          [1, 1, 0, 1, 0]]
+          [1, 1, 0, 1, 1]]
 
 matrix3 = [[1, 0, 1, 0, 1],
           [0, 1, 0, 1, 0],
@@ -225,6 +233,8 @@ flyenemySize = 50
 
 # dragon
 dragonSize = 128
+dragonblood = 800
+
 
 # castle
 castleSize = 256
@@ -284,6 +294,7 @@ fortressImg = "image/fortress.png"
 finalfightImg = "image/finalfight.png"
 # Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
 attackfireImg = "image/fireball.png"
+dragonfireImg = "image/dragonfire.png"
 # Icons made by <a href="https://www.flaticon.com/authors/surang" title="surang">surang</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
 axeEnemyImg = "image/boss1.png"
 # <div>Icons made by <a href="https://www.flaticon.com/authors/itim2101" title="itim2101">itim2101</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
@@ -300,3 +311,7 @@ bigballImg = "image/dot.png"
 medicineImg = "image/potion.png"
 #Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
 celebrationImg = "image/rocket.png"
+#https://fineartamerica.com/featured/princess-castle-t-chisgar.html
+castlebackgroundImg = "image/castlebackground.jpg"
+#Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+mountainImg = "image/mountain.png"
