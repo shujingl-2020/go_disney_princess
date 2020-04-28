@@ -139,10 +139,10 @@ class Game:
         self.addAxeEnemy()
         self.ice = Ice(self)
         self.ball = Ball(self)
-        # self.dragon = Dragon(self,castleX - dragonSize - 50, castleY)
+        self.dragon = Dragon(self,stageWidth - 2*width, castleY)
         self.castle = Castle(self, castleX, castleY)
         self.carpet = Carpet(self)
-        # self.attackfire = Attackfire(self)
+        #self.attackfire = Attackfire(self)
         # initialize the game
         self.run()
 
@@ -228,6 +228,7 @@ class Game:
             self.finalfire.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
             self.axeEnemy.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
             self.castle.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
+            self.dragon.rect.x += -(self.princess.vel.x + 0.5 * self.princess.acc.x)
 
     def addFinalPlat(self):
         self.finalplatforms = pg.sprite.Group()
@@ -246,6 +247,7 @@ class Game:
                     result.append((x, y))
         return result
 
+
     def updateMatrix(self):
         self.matrix = matrixes[self.i]
         self.finalPlatPos = self.getPlatPos(self.matrix)
@@ -263,13 +265,12 @@ class Game:
 
 
     def win(self):
-         if self.princess.pos.x > width - castleSize/2 and not self.axeEnemy.alive:
+         if self.princess.pos.x > width - castleSize/2 and self.axeEnemy.alive == False:
              self.winning = True
 
     def update(self):
         # game loop update
         self.clock.tick(fps)
-        print(f'self.finalplatX{self.finalplatX}')
         self.updateMatrix()
         self.backgroudScrolling()
         self.enemies.update()
@@ -283,7 +284,7 @@ class Game:
         self.enemyAttack()
         self.updateSprites()
         self.ice.update()
-        # self.dragon.update()
+        self.dragon.update()
         self.castle.update()
         self.carpet.update()
         self.finalfire.update()
@@ -372,6 +373,7 @@ class Game:
 
 
     def showWinningScreen(self):
+       if self.winning:
         background = pg.image.load(backgroundImg)
         self.screen.blit(background, ((0, 0)))
         image1 = celebrationImg
@@ -492,7 +494,7 @@ class Game:
             self.drawFire()
             self.drawEnemyHBar()
             self.drawEnemyDamage()
-            # self.dragon.draw()
+            #self.dragon.draw()
             self.axeEnemy.draw()
             self.ice.draw()
             self.drawInstruction()

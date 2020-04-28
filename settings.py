@@ -10,7 +10,7 @@ finalPlatColor = (5, 0, 139)
 
 # stage size
 bgWidth = 1280
-stageWidth = bgWidth * 6
+stageWidth = bgWidth * 4
 stagePosX = 0
 
 # display surface

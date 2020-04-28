@@ -864,40 +864,53 @@ class Dragon(Enemy):
     def __init__(self, game, x, y):
         super().__init__(game, x, y)
         self.image = dragonImg
-        self.vx = 0
+        self.vx = -10
         self.vy = 0
         self.rect.x = x
         self.rect.y = y
-        self.blood = 2000
+        self.distance = 0
+        self.blood = 1000
         self.hBarL = 100
+        self.attacked = False
 
     def update(self):
-        self.rect.x -= self.game.princess.vel.x
-        vecR = int(self.rect.y // cellH)
-        vecC = int(self.rect.x // cellW)
-        if Princess.finalMatrix[vecR][vecC] != "E" and Princess.finalMatrix[vecR][vecC] != 0:
-            Princess.finalMatrix = updateMatrixS(Princess.finalMatrix)
-            Princess.finalMatrix[vecR][vecC] = "S"
-            path = solve(Princess.finalMatrix)
-            (targetR, targetC) = path[0]
-            # move toward the platform
-            if targetR > vecR:
-                self.vy = 10
-            if targetR < vecR:
-                self.vy = -15
-            if targetR == vecR:
-                self.vy = 0
-            if targetC > vecC:
-                self.vx = 10
-            if targetC < vecC:
-                self.vx = -10
-            if targetC == vecC:
-                self.vx = 0
-        if Princess.finalMatrix[vecR][vecC] == "E":
-            self.vx = 0
-            self.vy = 0
+      (x1,y1) = self.game.princess.rect.center
+      (x2, y2) = self.rect.center
+      self.distance = ((x1-x2)**2 + (y1-y2)**2)**0.5
+      if self.distance < width:
+        if self.rect.x <= 0:
+            self.rect.x = 0
+            self.vx = 10
+        if self.rect.x >= width:
+            self.rect.x = width
+            self.vx = -10
         self.rect.x += self.vx
         self.rect.y += self.vy
+
+
+    def drawHealthBar(self):
+        image1 = pg.Surface((100, enemyhBarH))
+        image1.fill(black)
+        rect1 = image1.get_rect()
+        rect1.x = self.rect.x
+        rect1.y = self.rect.y - enemySize / 2 - 5
+        self.game.screen.blit(image1, rect1)
+        if self.hBarL > 0:
+            pg.draw.rect(self.game.screen, blue, (rect1.x, rect1.y, self.hBarL, enemyhBarH))
+
+    def showLostBlood(self):
+        if self.attacked == True:
+            x = self.rect.x
+            y = self.rect.y - 80
+            font = pg.font.Font("StaySafe-Regular.ttf", 20)
+            blood = font.render("hp -" + str(10), True, blue)
+            self.game.screen.blit(blood, (x, y))
+
+    def draw(self):
+        self.game.screen.blit(self.image, self.rect)
+        self.drawHealthBar()
+        self.showLostBlood()
+
 
     # def fireAttack(self):
     #     self.distance = ((self.rect.x - self.game.princess.rect.x)**2 + (self.rect.y - self.game.princess.rect.y)**2)**0.5
