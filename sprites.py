@@ -660,7 +660,7 @@ class Jasmine(Princess):
         self.updateImg()
         self.updateMatrix()
         self.updateMovement()
-        #self.flyLimit()
+        self.flyLimit()
         self.hitbyFireball()
         self.hitFire()
         self.collectReward()
