@@ -19,6 +19,11 @@ class Game:
         pg.display.set_caption(title)
         icon = pg.image.load(castleImg)
         pg.display.set_icon(icon)
+        self.running = True
+
+
+    def newSetting(self):
+        self.running = True
         self.timeElapsed = 0
         self.clock = pg.time.Clock()
         self.running = True
@@ -130,6 +135,7 @@ class Game:
 
     def new(self):
         # start a new game
+        self.newSetting()
         self.x = 0
         self.relX = 0
         # create sprites
@@ -147,7 +153,7 @@ class Game:
         self.ice = Ice(self)
         self.ball = Ball(self)
         self.castle = Castle(self, castleX, castleY)
-        self.mountain = Mountain(self, plat5X2 + 1.5*width, castleY-120)
+        self.mountain = Mountain(self, plat5X2 + 1.5*width, castleY-130)
         self.carpet = Carpet(self)
         # self.attackfire = Attackfire(self)
         # initialize the game
@@ -167,6 +173,9 @@ class Game:
             for i in range(5):
                 enemy = FlyingEnemy(self, random.randint(400, 1000), flyenemyY)
                 self.flyingenemies.add(enemy)
+            for enemy in self.flyingenemies:
+                fireball = Fireball(self, enemy)
+                self.fireballs.add(fireball)
 
     def backgroudScrolling(self):
         self.relX = self.x % bgWidth
@@ -251,7 +260,7 @@ class Game:
         self.finalplatforms = pg.sprite.Group()
         for pos in self.finalPlatPos:
             (x, y) = pos
-            platform = Platform(x, y, finalPlatW, finalPlatH, finalPlatColor)
+            platform = Platform(x, y, finalPlatW, finalPlatH, platformColor)
             self.finalplatforms.add(platform)
 
     def getPlatPos(self, matrix):
@@ -288,9 +297,11 @@ class Game:
       if not self.gameOver:
        if not self.instruction and not self.intro:
         self.clock.tick(fps)
+        self.isGameOver()
         self.updateMatrix()
         self.backgroudScrolling()
         self.enemies.update()
+        self.addEnemies()
         self.flyingenemies.update()
         self.fires.update()
         self.platforms.update()
@@ -305,14 +316,12 @@ class Game:
         self.castle.update()
         self.carpet.update()
         self.finalfire.update()
-        self.addEnemies()
         self.mountain.update()
         # self.dragon.fireAttack()
         self.axeEnemy.update()
         self.axe.update()
         self.ball.update()
         self.fireballs.update()
-        self.isGameOver()
         self.win()
         # self.attackfire.update()
 
@@ -351,9 +360,6 @@ class Game:
                     self.instruction = False
                     self.intro = True
                 elif event.key == pg.K_r:
-                    self.intro = True
-                    self.drawMainMenu()
-                    self.gameOver = False
                     self.new()
                 elif event.key == pg.K_s:
                     self.switchRole()

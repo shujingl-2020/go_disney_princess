@@ -968,7 +968,7 @@ class AxeEnemy(Enemy):
         self.image = axeEnemyImg
         self.rect.x = x
         self.rect.y = y
-        self.blood = 800
+        self.blood = 500
         self.hBarL = bosshBarL
         self.vx = 0
         self.vy = 0
@@ -983,8 +983,8 @@ class AxeEnemy(Enemy):
 
     def isAlive(self):
         if self.attacked == True:
-            self.blood -= 20
-            self.hBarL -= 20/1000 * bosshBarL
+            self.blood -= 50
+            self.hBarL -= 50/500 * bosshBarL
             Princess.score += 10
         if self.blood <= 0:
             self.alive = False
@@ -1476,10 +1476,9 @@ class Mountain(pg.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+    def update(self):
+       if not self.game.princess.floating and self.game.princess.rect.x + 60 > self.rect.x:
+          self.game.princess.vx = 0
+
     def draw(self):
         self.game.screen.blit(self.image, self.rect)
-
-    def update(self):
-       hit = pg.sprite.collide_circle(self, self.game.princess)
-       if hit:
-           self.game.princess.vx = 0
