@@ -15,6 +15,8 @@ How to run the project
 
 The code is organized into three files: main.py, setting.py, and sprites.py. User should run the main.py file in the editor to run the project. 
 
+Remember to download the whole folder including the images and fonts to make sure that the project can be run properly.
+
 
 Libraries
 
@@ -26,7 +28,7 @@ Shortcut commands
 Press “r” to restart the game.
 Press “p” to pause the game and see the instructions.
 Press “esc” to exit the pause page. 
-
+Comment out the self.flylimit() function in the Jasmine class, so you can have unlimited time to fly over the obstacles to skip forward in the game.
 
 
 
