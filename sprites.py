@@ -621,7 +621,7 @@ class Jasmine(Princess):
             self.vel.x = 0
         if self.rect.y < 50:
             self.rect.y = 50
-        if self.pos.y > initialBottom + 20:
+        if self.pos.y > initialBottom + 50:
             Princess.alive = False
         if Princess.blood <= 0:
             Princess.life -= 1
@@ -918,8 +918,8 @@ class Dragon(Enemy):
     def isAlive(self):
         if self.attacked == True:
           if self.heal:
-              self.blood -= 50
-              self.hBarL -= 50 / dragonblood * bosshBarL
+              self.blood -= 80
+              self.hBarL -= 80 / dragonblood * bosshBarL
           else:
             self.blood -= 20
             self.hBarL -= 20 / dragonblood * bosshBarL
@@ -958,8 +958,8 @@ class Dragon(Enemy):
     def healing(self):
         if self.blood < 1/10 * dragonblood:
             self.heal = True
-            self.blood += 1/5 * dragonblood
-            self.hBarL += 1/5 * 100
+            self.blood += 50
+            self.hBarL += 50/dragonblood * 100
 
 
 class AxeEnemy(Enemy):
