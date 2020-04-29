@@ -1,6 +1,6 @@
 
 
-# ** Project Description **
+# Project Description 
 
 ### This is my term project for CMU 15112 course.This project is a side scroller game called Go Disney Princess. 
 
