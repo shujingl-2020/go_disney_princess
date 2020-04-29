@@ -237,13 +237,13 @@ class Princess(pg.sprite.Sprite):
     hBarL = princesshBarL
     alive = True
     finalMatrix = matrix
+    attacked = False
 
     def __init__(self, game):
         pg.sprite.Sprite.__init__(self)
         self.initializeClassAttribute()
         self.initializePos()
         self.game = game
-        self.attacked = False
         self.ishitFire = False
         self.isfly = False
         self.run = False
@@ -274,6 +274,7 @@ class Princess(pg.sprite.Sprite):
         Princess.blood = 500
         Princess.hBarL = princesshBarL
         Princess.alive = True
+        Princess.attacked = False
 
 
     def updateMatrix(self):
@@ -329,7 +330,7 @@ class Princess(pg.sprite.Sprite):
                 self.rect.x = width - 60
             if self.rect.y < 50:
                 self.rect.y = 50
-            if self.pos.y > initialBottom + 20:
+            if self.pos.y > initialBottom + 80:
                 Princess.alive = False
             if Princess.blood <= 0:
                 Princess.life -= 1
@@ -449,7 +450,7 @@ class Mulan(Princess):
                         if enemy.blood == 0:
                             enemy.kill()
                             Princess.score += 10
-                            self.attacked = False
+                            self.game.princess.attacked = False
 
     def update(self):
         self.updateMatrix()
@@ -621,7 +622,7 @@ class Jasmine(Princess):
             self.vel.x = 0
         if self.rect.y < 50:
             self.rect.y = 50
-        if self.pos.y > initialBottom + 50:
+        if self.pos.y > initialBottom + 80:
             Princess.alive = False
         if Princess.blood <= 0:
             Princess.life -= 1

@@ -328,6 +328,9 @@ class Game:
     # all the event functions
 
     def switchRole(self):
+        print(Princess.alive)
+        print(self.gameOver)
+        print(f'attacked{self.princess.attacked}')
         if self.princess == self.mulan:
             self.princess = self.elsa
             self.princess.pos = self.mulan.pos
